@@ -1,13 +1,15 @@
 # Message Layer Authentication with OpenID Connect
 
+
 ## Abstract
 
 This document describes a message layer authentication mechanism for OpenID Connect.
 It can be used to authenticate messages on the application layer of the ISO/OSI model.
 This includes messages of instant messengers, emails, audio or video streams, signalling messages or any other kind of messages which are exchanged between the Clients of two users.
-Users authenticate themselves with a special kind of OpenID ID Token, called Identity Assertion Token (IAT) which contains a public key whose corresponding private key is used by the sending Client to authenticate as its user.
+Thereby, users authenticate themselves with a special kind of OpenID ID Token, called ID Assertion Token (IAT) which contains a public key whose corresponding private key is used by the sending Client to authenticate messages.
 This authentication mechanism also works between users of different OpenID Providers (OP) if users trust each others OP.
- 
+
+
 ## Table of Content
 
 - [Message Layer Authentication with OpenID Connect](#message-layer-authentication-with-openid-connect)
@@ -22,6 +24,17 @@ This authentication mechanism also works between users of different OpenID Provi
     - [2.3. Client Authentication](#23-client-authentication)
     - [2.4. Advanced Usage](#24-advanced-usage)
   - [3. ID Assertion Token](#3-id-assertion-token)
+  - [4. Authentication Flow](#4-authentication-flow)
+    - [4.1. User Authentication](#41-user-authentication)
+    - [4.2. Token Request](#42-token-request)
+  - [5. Client Authentication](#5-client-authentication)
+    - [5.1. Authentication of RP A](#51-authentication-of-rp-a)
+    - [5.2. Authentication of RP B](#52-authentication-of-rp-b)
+  - [6. Advanced Security Features](#6-advanced-security-features)
+    - [6.1. Initialization of End-to-End Encryption](#61-initialization-of-end-to-end-encryption)
+      - [6.1.1. E2EE with ECC and Diffie-Hellman](#611-e2ee-with-ecc-and-diffie-hellman)
+      - [6.1.2. E2EE with RSA and AES](#612-e2ee-with-rsa-and-aes)
+    - [6.2. Double Ratchet Initialization](#62-double-ratchet-initialization)
 
 ## 1. Introduction
 
@@ -35,8 +48,8 @@ If Bob trusts Alice's IdP, he can verify that the message was sent by Alice's Cl
 This works also the other way around, even if Bob's and Alice's IdP differ from each other.
 
 To authenticate a user to another Client, this document introduces a special kind of ID Token, called the Identity Assertion Token (IAT).
-Unlike the normal ID Token, the IAT's purpose is to be sent to Clients or servers of other users.
-Because of this, a the introduction of an IAT is required, since a normal ID Token might leak internal data between the Client and the OP (e.g., internal user IDs, email addresses, ...) if transferred to another user.
+Unlike the normal ID Token, the IAT's purpose is to be sent to clients or servers of other users.
+Because of this, the introduction of an IAT is required, since a normal ID Token might leak internal data between the Client and the OP (e.g., internal user IDs, email addresses, ...) if transferred to another user.
 
 For advanced security, this document also describes how to establish an End-to-End Encryption (E2EE) for uni- and bidirectional communication channels on the application layer.
 
@@ -53,7 +66,7 @@ This specification uses the terms "Access Token", "Refresh Token", "Authorizatio
 This specification also defines the following terms:
 
 **ID Assertion Token (IDT)**
-A JWT which is signed by an OP and contains information about its owner.
+A JWT which is signed by an OP and contains information to identify its owner.
 It also contains the public key of the owner's Client.
 It is similar to an ID Token as defined in [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html), but it is meant to be transferred to other users, so it does not contain any internal data.
 
@@ -62,14 +75,14 @@ It is similar to an ID Token as defined in [OpenID Connect](https://openid.net/s
 
 The mechanism has three basic steps which are:
 
-1. **User Authentication**: The Resource Owner (= User) MUST authenticate to its own OpenID Provider.
+1. **User Authentication**: The Resource Owner (= user) MUST authenticate to its own OpenID Provider.
 2. **Client Registration**: The Resource Owner MUST register an asymmetric key pair for its Client at the OpenID Provider which issues an ID Assertion Token.
 3. **Client Authentication**: The Client uses its key pair and the ID Assertion Token to authenticate as its Resource Owner to other Resource Owners.
 
 ```
    +----------------+                                 +----------------+
    |                |                                 |                |
-   |   Apricot OP   |                                 |   Banana OP    |
+   |      OP A      |                                 |      OP B      |
    |                |                                 |                |
    +----------------+                                 +----------------+
        ^        ^                                         ^        ^    
@@ -92,6 +105,10 @@ The mechanism has three basic steps which are:
 The Client performs an Authentication Request as described in the [OpenID Connect Specification in section 3.1.2.1](https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest).
 
 If the `scope` parameter contains a value of `public_openid`, the OpenID Provider MUST request authorization from user to issue an ID Assertion Token which contains information about the user.
+
+Claims of the ID Assertion Token can be defined equivalently to the ID Token.
+The requestable claims of the ID Assertion Token are a subset of the requestable claims of the ID Token.
+The claims subset provided in the ID Assertion Token can be defined using the `claims` request parameter with the `id_assertion_token` attribute of the `claims` parameter as defined in [section 5.5] of the OpenID Connect Specification](https://openid.net/specs/openid-connect-core-1_0.html#ClaimsParameter).
 
 ```
    +--------------+     (1) AuthN Request        +---------------------+
@@ -172,6 +189,63 @@ Client A can compute this shared secret after receiving the signed part of Clien
 
 
 ## 3. ID Assertion Token
+
+This section describes the format of an ID Assertion Token in full detail.
+
+TODO
+
+
+## 4. Authentication Flow
+
+This section describes exactly, how the document extends the OpenID Connect User Authentication Flow and the Token Request.
+
+
+### 4.1. User Authentication
+
+TODO
+
+
+### 4.2. Token Request
+
+TODO
+
+
+## 5. Client Authentication
+
+This section describes exactly, how two Relying Parties (RP A and RP B) authenticate themselves to each other.
+
+
+### 5.1. Authentication of RP A
+
+TODO
+
+
+### 5.2. Authentication of RP B
+
+TODO
+
+
+## 6. Advanced Security Features
+
+This section describes optional and more advanced extensions of the protocol.
+
+
+### 6.1. Initialization of End-to-End Encryption
+
+This section describes how End-to-End Encryption (E2EE) can be established between RP A and RP B.
+
+
+#### 6.1.1. E2EE with ECC and Diffie-Hellman
+
+TODO
+
+
+#### 6.1.2. E2EE with RSA and AES
+
+TODO
+
+
+### 6.2. Double Ratchet Initialization
 
 TODO
 
