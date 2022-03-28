@@ -30,6 +30,9 @@ This authentication mechanism also works between users of different OpenID Provi
   - [5. Client Authentication](#5-client-authentication)
     - [5.1. Authentication of RP A](#51-authentication-of-rp-a)
     - [5.2. Authentication of RP B](#52-authentication-of-rp-b)
+    - [5.3. Certificate-based Authentication](#53-certificate-based-authentication)
+      - [5.3.1. Client Registration with Elliptic Curve Certificates](#531-client-registration-with-elliptic-curve-certificates)
+      - [5.3.2. Client Registration with RSA Certificates](#532-client-registration-with-rsa-certificates)
   - [6. Advanced Security Features](#6-advanced-security-features)
     - [6.1. Initialization of End-to-End Encryption](#61-initialization-of-end-to-end-encryption)
       - [6.1.1. E2EE with ECC and Diffie-Hellman](#611-e2ee-with-ecc-and-diffie-hellman)
@@ -41,11 +44,11 @@ This authentication mechanism also works between users of different OpenID Provi
 Suppose, Alice and Bob want to exchange messages via any Message eXchange Service (MXS), e.g., an instant messenger.
 Alice and Bob don't know each other yet and have never exchanged any information.
 They also do not trust the MXS which could manipulate or introspect exchanged messages.
-But they trust each others Identity Provider (IdP) to validate authentication of their user accounts correctly.
+But they trust each others OpenID Provider (OP) to validate authentication of their user accounts correctly.
 
 With the technique proposed in this document, Alice can send an authenticated message to Bob.
-If Bob trusts Alice's IdP, he can verify that the message was sent by Alice's Client.
-This works also the other way around, even if Bob's and Alice's IdP differ from each other.
+If Bob trusts Alice's OP, he can verify that the message was sent by Alice's Client.
+This works also the other way around, even if Bob's and Alice's OP differ from each other.
 
 To authenticate a user to another Client, this document introduces a special kind of ID Token, called the Identity Assertion Token (IAT).
 Unlike the normal ID Token, the IAT's purpose is to be sent to clients or servers of other users.
@@ -124,13 +127,18 @@ The claims subset provided in the ID Assertion Token can be defined using the `c
 The Client performs a Token Request as described in the [OpenID Connect Specification in section 3.1.3.1](https://openid.net/specs/openid-connect-core-1_0.html#TokenRequest).
 
 Thereby, the Client MUST provide a public key and a proof to own the related private key.
-This works exactly like in [section 5 of the OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer Draft](https://www.ietf.org/archive/id/draft-ietf-oauth-dpop-06.html#name-dpop-access-token-request):
+This MAY work exactly like in [section 5 of the OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer Draft](https://www.ietf.org/archive/id/draft-ietf-oauth-dpop-06.html#name-dpop-access-token-request):
 The Client provides a JSON Web Token (JWT) as specified in [RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519) in the DPoP header.
 This JWT contains the Client's public key as JSON Web Key (see [RFC 7517](https://datatracker.ietf.org/doc/html/rfc7517)) in its header and is signed by the Client with the related private key.
+The type of asymmetric Client authentication (certificates, ...) and the way of proving possession is explicitly open for future implementations.
+Anyway, this will be specified for RSA and Elliptic Curve Certificates in [section 5](#)
 
 If validation succeeded, the OpenID Provider responds with a Token Response as specified in [section 3.1.3.3 of the OpenID Connect Specification](https://openid.net/specs/openid-connect-core-1_0.html#TokenResponse).
 In addition, this response contains the parameter `id_assertion_token` which contains the ID Assertion Token.
-This ID Assertion Token is a JWT, just like the ID Token, but with the JWK encoded public key from the DPoP header in its header.
+This ID Assertion Token is a JWT, which contains public claims to identify a Resource Owner.
+The Client MAY control, which claims are included.
+The Resource Owner MUST confirm that the Client is allowed to provide these information about the Resource Owner to 3rd parties.
+In its header, it contains a JWK encoded public key to identify the Client.
 A detailed specification of the ID Assertion Token is provided in [section 3](#3-id-assertion-token).
 
 ```
@@ -192,6 +200,9 @@ Client A can compute this shared secret after receiving the signed part of Clien
 
 This section describes the format of an ID Assertion Token in full detail.
 
+An ID Assertion Token is a JSON Web Token (JWT), as specified in [RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519)
+It follows the Proof-of-Possession (PoP) semantics for JWTs, as specified in [RFC 7800](https://datatracker.ietf.org/doc/html/rfc7800).
+
 TODO
 
 
@@ -223,6 +234,21 @@ TODO
 ### 5.2. Authentication of RP B
 
 TODO
+
+
+### 5.3. Certificate-based Authentication
+
+TODO
+
+
+#### 5.3.1. Client Registration with Elliptic Curve Certificates
+
+TODO: Generate ECC key pair, provide ECC public key in DPoP header and sign it with ECC private key.
+
+
+#### 5.3.2. Client Registration with RSA Certificates
+
+TODO: Generate RSA key pair, provide RSA public key in DPoP header and sign it with RSA private key.
 
 
 ## 6. Advanced Security Features
