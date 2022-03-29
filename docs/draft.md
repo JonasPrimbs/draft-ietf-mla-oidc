@@ -169,16 +169,9 @@ A detailed specification of the ID Assertion Token is provided in [section 3](#3
 
 ### 2.3. Client Authentication
 
-In the first message that Client A sends to Client B, Client A provides its ID Assertion Token and signs a unique part of the message with the private key whose related public key is in the header of the ID Assertion Token.
-
-Client B verifies the identity of Client A by first checking the validity of the ID Assertion Token.
-Therefore, Client B checks that the ID Assertion Token is signed by a trusted OpenID Provider, which may require interaction with the user of Client B.
-If the ID Assertion Token is valid, Client B verifies the signature of the message with the public key provided the ID Assertion Token's header.
-If the signature is valid, Client B knows that the message comes from a Client which was authorized by the Resource Owner stated as subject in the ID Assertion Token.
-
-Depending on the application, the flow might end here, since this is enough to transport a user-authenticated message from one client to another.
-Now Client B MAY answer this message by doing exactly the same thing.
-
+In the first message that Client A sends to Client B, Client A provides its ID Assertion Token.
+Client B MUST NOT trust, that this message comes from Client A, before Client A proved possession of the ID Assertion Token.
+Anyway, proving possession of the ID Assertion Token MAY be done with this first message, e.g., by signing the message with that private key, whose public key is contained in the ID Assertion Token's header.
 
 ```
    +----------------+      (1) Client A AuthN         +----------------+
@@ -187,6 +180,20 @@ Now Client B MAY answer this message by doing exactly the same thing.
    |                |<--------------------------------|                |
    +----------------+                                 +----------------+
 ```
+
+This can be done in any direction and with every message.
+
+Here is an example, how such an End-to-End authenticated communication might happen, if Client A and Client B use Elliptic Curve Cryptography with the ECC public keys in their ID Assertion Token's header:
+
+Client A sends its ID Assertion Token, and a random string to prevent replay attacks, to Client B and signs the whole message with its ECC private key.
+Client B validates the ID Assertion Token and verifies the signature using the ECC public key from the ID Assertion Token of Client A.
+
+Then Client B responds with its own ID Assertion Token, and a random string to prevent replay attacks, to Client A and signs the whole message with its own ECC private key.
+Client A validates the ID Assertion Token and verifies the signature using the ECC public key from the ID Assertion Token of Client B.
+
+In both cases, validating the ID Assertion Token MAY require a user interaction to request from the Client's Resource Owner, whether he/she trusts the OpenID Provider of the remote Client.
+
+From now on, both Clients know the identity of each other and they can exchanged messages which are signed with their ECC private keys.
 
 
 ### 2.4. Advanced Usage
