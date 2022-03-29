@@ -6,7 +6,7 @@ An IETF draft for Message Layer Authentication (MLA) with OpenID Connect (OIDC).
 
 ### Documents
 
-- [Latest draft](./draft.md)
+- [Latest draft](./docs/draft.md)
 
 ### Talks
 
