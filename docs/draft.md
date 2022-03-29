@@ -3,11 +3,14 @@
 
 ## Abstract
 
-This document describes a message layer authentication mechanism for OpenID Connect.
-It can be used to authenticate messages on the application layer of the ISO/OSI model.
-This includes messages of instant messengers, emails, audio or video streams, signalling messages or any other kind of messages which are exchanged between the Clients of two users.
-Thereby, users authenticate themselves with a special kind of OpenID ID Token, called ID Assertion Token (IAT) which contains a public key whose corresponding private key is used by the sending Client to authenticate messages.
+This document describes a message layer End-to-End Authentication (E2EA) mechanism for OpenID Connect (OIDC).
+It can be used to authenticate messages on the application layer of the ISO/OSI model even through multiple endpoints like e.g., proxies.
+This includes messages of instant messengers, emails, audio or video streams, signalling messages or any other kinds of messages which are exchanged between the Clients of two users.
+Thereby, users authenticate themselves with a special kind of OpenID ID Token, called ID Assertion Token (IAT).
+The IAT is a sender-constraint token that the user's Client uses do demonstrate Proof of Possession (dPoP) of this token.
+Therefore, the IAT contains a public key whose corresponding private key can be used to authenticate messages.
 This authentication mechanism also works between users of different OpenID Providers (OP) if users trust each others OP.
+The mechanism can also be extended to initialize an End-to-End Encryption (E2EE).
 
 
 ## Table of Content
@@ -42,9 +45,9 @@ This authentication mechanism also works between users of different OpenID Provi
 ## 1. Introduction
 
 Suppose, Alice and Bob want to exchange messages via any Message eXchange Service (MXS), e.g., an instant messenger.
-Alice and Bob don't know each other yet and have never exchanged any information.
+Alice and Bob don't know each other yet and have never exchanged any information before.
 They also do not trust the MXS which could manipulate or introspect exchanged messages.
-But they trust each others OpenID Provider (OP) to validate authentication of their user accounts correctly.
+But they trust each others OpenID Provider (OP) to validate the identity of their user accounts correctly.
 
 With the technique proposed in this document, Alice can send an authenticated message to Bob.
 If Bob trusts Alice's OP, he can verify that the message was sent by Alice's Client.
@@ -52,7 +55,11 @@ This works also the other way around, even if Bob's and Alice's OP differ from e
 
 To authenticate a user to another Client, this document introduces a special kind of ID Token, called the Identity Assertion Token (IAT).
 Unlike the normal ID Token, the IAT's purpose is to be sent to clients or servers of other users.
-Because of this, the introduction of an IAT is required, since a normal ID Token might leak internal data between the Client and the OP (e.g., internal user IDs, email addresses, ...) if transferred to another user.
+Because of this, the introduction of an IAT is required, since a normal ID Token might leak undesired data (e.g., internal user ID, email address, ...) if transferred to another user.
+
+The structure of the IAT relies on the Proof-of-Possession Key Semantics for JSON Web Tokens, defined in [RFC 7800](https://www.rfc-editor.org/rfc/rfc7800).
+Therefore, it contains the public key of an asymmetric key pair.
+The Client uses the related private key to authenticate sent messages and thereby proves the possession of the IAT.
 
 For advanced security, this document also describes how to establish an End-to-End Encryption (E2EE) for uni- and bidirectional communication channels on the application layer.
 
@@ -70,13 +77,13 @@ This specification also defines the following terms:
 
 **ID Assertion Token (IDT)**
 A JWT which is signed by an OP and contains information to identify its owner.
-It also contains the public key of the owner's Client.
-It is similar to an ID Token as defined in [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html), but it is meant to be transferred to other users, so it does not contain any internal data.
+It follows the Proof-of-Possession Key Semantics for JSON Web Tokens of [RFC 7800](https://www.rfc-editor.org/rfc/rfc7800) and therefore contains the public key of the owner's Client.
+It is an ID Token, as defined in [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html), but it contains a configurable subset of claims, since it is meant to be transferred to other users and MUST NOT leak any undesired data.
 
 
 ## 2. Overview
 
-The mechanism has three basic steps which are:
+The mechanism has the following three basic steps:
 
 1. **User Authentication**: The Resource Owner (= user) MUST authenticate to its own OpenID Provider.
 2. **Client Registration**: The Resource Owner MUST register an asymmetric key pair for its Client at the OpenID Provider which issues an ID Assertion Token.
@@ -106,12 +113,8 @@ The mechanism has three basic steps which are:
 ### 2.1. User Authentication
 
 The Client performs an Authentication Request as described in the [OpenID Connect Specification in section 3.1.2.1](https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest).
-
-If the `scope` parameter contains a value of `public_openid`, the OpenID Provider MUST request authorization from user to issue an ID Assertion Token which contains information about the user.
-
-Claims of the ID Assertion Token can be defined equivalently to the ID Token.
-The requestable claims of the ID Assertion Token are a subset of the requestable claims of the ID Token.
-The claims subset provided in the ID Assertion Token can be defined using the `claims` request parameter with the `id_assertion_token` attribute of the `claims` parameter as defined in [section 5.5] of the OpenID Connect Specification](https://openid.net/specs/openid-connect-core-1_0.html#ClaimsParameter).
+Just like in OpenID Connect, the `scope` parameter provided by the Client MUST contain the value `openid`.
+If not provided, or the user has rejected the Client's access to the scope, the OpenID Provider MUST NOT issue an ID Assertion Token.
 
 ```
    +--------------+     (1) AuthN Request        +---------------------+
@@ -120,6 +123,22 @@ The claims subset provided in the ID Assertion Token can be defined using the `c
    |              |<-----------------------------|                     |
    +--------------+                              +---------------------+
 ```
+
+The Client MUST request claims of the ID Assertion Token like claims in the ID Token.
+This means, that if any claims (e.g., `name`, `given_name`, or `family_name`) should be present in the ID Assertion Token, the Client MUST request access to the related scope (e.g., `profile`).
+If the user has not accepted the scopes, the related claims MUST NOT be present.
+Neither in the ID Token, nor in the ID Assertion Token.
+So, the claims in the ID Assertion Token MUST be a subset of the claims in the ID Token.
+
+The claims subset provided in the ID Assertion Token can be defined using the `claims` request parameter with the `id_assertion_token` attribute of the `claims` parameter as defined in [section 5.5 of the OpenID Connect Specification](https://openid.net/specs/openid-connect-core-1_0.html#ClaimsParameter).
+This allows the Client to configure which claims will be present in the ID Assertion Token.
+
+Example:
+The Client requests the `openid`, `profile`, and `email` scope and the user grants access to them.
+Then the Client performs a Token Request and obtains an ID Token which contains the user's name and email address.
+If not specified else, the ID Assertion Token would also contain the same claims for the user's name and email address.
+In case that the Client does not want to leak the user's email address to a remote party, the Client can reduce the claims in the ID Assertion Token (`id_assertion_token`) to only the user's name, using the `claims` parameter as defined in [section 5.5 of the OpenID Connect Specification](https://openid.net/specs/openid-connect-core-1_0.html#ClaimsParameter).
+Then the OpenID Provider will issue and ID Token with the claims for the user's name and email address, but an ID Assertion Token with only the user's name, and not its email address.
 
 
 ### 2.2. Client Registration
