@@ -33,9 +33,7 @@ The mechanism can also be extended to initialize an End-to-End Encryption (E2EE)
   - [5. Client Authentication](#5-client-authentication)
     - [5.1. Authentication of RP A](#51-authentication-of-rp-a)
     - [5.2. Authentication of RP B](#52-authentication-of-rp-b)
-    - [5.3. Certificate-based Authentication](#53-certificate-based-authentication)
-      - [5.3.1. Client Registration with Elliptic Curve Certificates](#531-client-registration-with-elliptic-curve-certificates)
-      - [5.3.2. Client Registration with RSA Certificates](#532-client-registration-with-rsa-certificates)
+    - [5.3. Client Authentication with Elliptic Curve Certificates](#53-client-authentication-with-elliptic-curve-certificates)
   - [6. Advanced Security Features](#6-advanced-security-features)
     - [6.1. Initialization of End-to-End Encryption](#61-initialization-of-end-to-end-encryption)
       - [6.1.1. E2EE with ECC and Diffie-Hellman](#611-e2ee-with-ecc-and-diffie-hellman)
@@ -143,22 +141,12 @@ Then the OpenID Provider will issue and ID Token with the claims for the user's 
 
 ### 2.2. Client Registration
 
-The Client performs a Token Request as described in the [OpenID Connect Specification in section 3.1.3.1](https://openid.net/specs/openid-connect-core-1_0.html#TokenRequest).
+Before or while the Client performs a Token Request, the Client MUST provide a public key and prove that he owns the related private key.
+The way how the Client does this is not explicitly not predetermined by this document to keep it open for future specifications.
+Anyway, [section 5.3](#53-client-authentication-with-elliptic-curve-certificates) specifies how to provide an Elliptic Curve public key and prove the possession of the corresponding private key with dPoP while performing the Token Request.
 
-Thereby, the Client MUST provide a public key and a proof to own the related private key.
-This MAY work exactly like in [section 5 of the OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer Draft](https://www.ietf.org/archive/id/draft-ietf-oauth-dpop-06.html#name-dpop-access-token-request):
-The Client provides a JSON Web Token (JWT) as specified in [RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519) in the DPoP header.
-This JWT contains the Client's public key as JSON Web Key (see [RFC 7517](https://datatracker.ietf.org/doc/html/rfc7517)) in its header and is signed by the Client with the related private key.
-The type of asymmetric Client authentication (certificates, ...) and the way of proving possession is explicitly open for future implementations.
-Anyway, this will be specified for RSA and Elliptic Curve Certificates in [section 5](#)
+The Client performs Token Request itself as described in the [OpenID Connect Specification in section 3.1.3.1](https://openid.net/specs/openid-connect-core-1_0.html#TokenRequest).
 
-If validation succeeded, the OpenID Provider responds with a Token Response as specified in [section 3.1.3.3 of the OpenID Connect Specification](https://openid.net/specs/openid-connect-core-1_0.html#TokenResponse).
-In addition, this response contains the parameter `id_assertion_token` which contains the ID Assertion Token.
-This ID Assertion Token is a JWT, which contains public claims to identify a Resource Owner.
-The Client MAY control, which claims are included.
-The Resource Owner MUST confirm that the Client is allowed to provide these information about the Resource Owner to 3rd parties.
-In its header, it contains a JWK encoded public key to identify the Client.
-A detailed specification of the ID Assertion Token is provided in [section 3](#3-id-assertion-token).
 
 ```
    +--------------+     (1) Token Request        +---------------------+
@@ -167,6 +155,16 @@ A detailed specification of the ID Assertion Token is provided in [section 3](#3
    |              |<-----------------------------|                     |
    +--------------+                              +---------------------+
 ```
+
+If the Token Request is valid and the Client proved Possession of the related private key, the OpenID Provider MUST respond with a Token Response as specified in [section 3.1.3.3 of the OpenID Connect Specification](https://openid.net/specs/openid-connect-core-1_0.html#TokenResponse).
+If the scope from the Authentication Request contains `openid`, the Token Response MUST contain the parameter `id_assertion_token` which contains the ID Assertion Token.
+
+This ID Assertion Token is a JWT, which contains public claims to identify the Resource Owner (e.g., its name, email address, ...).
+The Client MAY define in the Token Request, which claims to include in the ID Assertion Token.
+If the user granted the Client to request these claims, the OpenID Provider MUST include these claims in the ID Assertion Token.
+If the Client has not specified any claims to include, the OpenID Provider MUST include all claims which are also included in the ID Token.
+In its header, the ID Assertion Token contains the verified public key to identify the Client.
+A detailed specification of the ID Assertion Token is provided in [section 3](#3-id-assertion-token).
 
 
 ### 2.3. Client Authentication
@@ -255,20 +253,18 @@ TODO
 TODO
 
 
-### 5.3. Certificate-based Authentication
-
-TODO
-
-
-#### 5.3.1. Client Registration with Elliptic Curve Certificates
+### 5.3. Client Authentication with Elliptic Curve Certificates
 
 TODO: Generate ECC key pair, provide ECC public key in DPoP header and sign it with ECC private key.
 
-
-#### 5.3.2. Client Registration with RSA Certificates
-
-TODO: Generate RSA key pair, provide RSA public key in DPoP header and sign it with RSA private key.
-
+<!--
+Thereby, the Client MUST provide a public key and a proof to own the related private key.
+This MAY work exactly like in [section 5 of the OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer Draft](https://www.ietf.org/archive/id/draft-ietf-oauth-dpop-06.html#name-dpop-access-token-request):
+The Client provides a JSON Web Token (JWT) as specified in [RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519) in the DPoP header.
+This JWT contains the Client's public key as JSON Web Key (see [RFC 7517](https://datatracker.ietf.org/doc/html/rfc7517)) in its header and is signed by the Client with the related private key.
+The type of asymmetric Client authentication (certificates, ...) and the way of proving possession is explicitly open for future implementations.
+Anyway, this will be specified for RSA and Elliptic Curve Certificates in [section 5](#)
+-->
 
 ## 6. Advanced Security Features
 
