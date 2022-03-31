@@ -4,13 +4,13 @@
 ## Abstract
 
 This document describes a message layer End-to-End Authentication (E2EA) mechanism for OpenID Connect (OIDC).
-It can be used to authenticate messages on the application layer of the ISO/OSI model even through multiple endpoints like e.g., proxies.
-This includes messages of instant messengers, emails, audio or video streams, signalling messages or any other kinds of messages which are exchanged between the Clients of two End Users.
+It can be used to authenticate messages on the application layer of the ISO/OSI model even through multiple servers like e.g., proxies.
+This includes messages of instant messengers, emails, audio or video streams, signalling messages, or any other kinds of messages which are exchanged between the Relying Parties of two End Users.
 Thereby, End Users authenticate themselves with a special kind of OpenID ID Token, called ID Assertion Token (IAT).
-The IAT is a sender-constraint token that the End User's Client uses do demonstrate Proof of Possession (dPoP) of this token.
+The IAT is a sender-constraint JWT that the End User's Relying Party uses do demonstrate Proof-of-Possession (dPoP) of this token.
 Therefore, the IAT contains a public key whose corresponding private key can be used to authenticate messages.
 This authentication mechanism also works between End Users of different OpenID Providers (OP) if End Users trust each others OP.
-The mechanism can also be extended to initialize an End-to-End Encryption (E2EE).
+This document also describes how to extend the mechanism to initialize End-to-End Encryption (E2EE) for full End-to-End Security.
 
 
 ## Table of Content
@@ -23,8 +23,8 @@ The mechanism can also be extended to initialize an End-to-End Encryption (E2EE)
     - [1.2. Terminology](#12-terminology)
   - [2. Overview](#2-overview)
     - [2.1. End User Authentication](#21-end-user-authentication)
-    - [2.2. Client Registration](#22-client-registration)
-    - [2.3. Client Authentication](#23-client-authentication)
+    - [2.2. Relying Party Registration](#22-relying-party-registration)
+    - [2.3. Relying Party Authentication](#23-relying-party-authentication)
     - [2.4. Message Authentication](#24-message-authentication)
     - [2.5. Encryption Extension](#25-encryption-extension)
   - [3. ID Assertion Token](#3-id-assertion-token)
@@ -49,19 +49,19 @@ Alice and Bob don't know each other yet and have never exchanged any information
 They also do not trust the MXS which could manipulate or introspect exchanged messages.
 But they trust each others OpenID Provider (OP) to validate the identity of their End User accounts correctly.
 
-With the technique proposed in this document, Alice can send an authenticated message to Bob.
-If Bob trusts Alice's OP, he can verify that the message was sent by Alice's Client.
+With the technique proposed in this document, Alice can send authenticated messages to Bob.
+If Bob trusts Alice's OP, he can verify that the message was sent by a Relying Party of Alice.
 This works also the other way around, even if Bob's and Alice's OP differ from each other.
 
-To authenticate an End User to another Client, this document introduces a special kind of ID Token, called the Identity Assertion Token (IAT).
-Unlike the normal ID Token, the IAT's purpose is to be sent to clients or servers of other End Users.
+To authenticate an End User to another Relying Party, this document introduces a special kind of ID Token, called the ID Assertion Token (IAT).
+Unlike the normal ID Token, the IAT's purpose is to be sent to remote Relying Parties or servers to authenticate the End User of the IAT to other End Users.
 Because of this, the introduction of an IAT is required, since a normal ID Token might leak undesired data (e.g., internal End User ID, email address, ...) if transferred to another End User.
 
 The structure of the IAT relies on the Proof-of-Possession Key Semantics for JSON Web Tokens, defined in [RFC 7800](https://www.rfc-editor.org/rfc/rfc7800).
 Therefore, it contains the public key of an asymmetric key pair.
-The Client uses the related private key to authenticate sent messages and thereby proves the possession of the IAT.
+The Relying Party uses the related private key to authenticate sent messages and thereby proves the possession of the IAT.
 
-For advanced security, this document also describes how to establish an End-to-End Encryption (E2EE) for uni- and bidirectional communication channels on the application layer.
+To achieve full End-to-End Security, this document also describes how to establish an End-to-End Encryption (E2EE) for uni- and bidirectional communication channels on the application layer.
 
 
 ### 1.1. Requirements Notation and Conventions
@@ -71,70 +71,80 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ### 1.2. Terminology
 
-This specification uses the terms "Access Token", "Refresh Token", "Authorization Code", "Authorization Endpoint", "Authorization Grant", "Authorization Server", "Client", "Client Authentication", "Client Identifier", "Client Secret", "Grant Type", "Protected Resource", "Refresh Token", "Resource Owner", "Resource Server", "Response Type", and "Token Endpoint" defined by The OAuth 2.0 Authorization Framework in [RFC 6749](https://datatracker.ietf.org/doc/rfc6749/), the terms "Claim Name", "Claim Value", "JSON Web Token (JWT)", and "JWT Claims Set" defined by JSON Web Token (JWT) in [RFC 7519](https://datatracker.ietf.org/doc/7519/), and the terms "Authentication Request", "ID Token", and "OpenID Provider (OP)" defined by [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html).
+This specification uses the terms "Access Token", "Refresh Token", "Authorization Code", "Authorization Endpoint", "Authorization Grant", "Authorization Server", "Client", "Client Authentication", "Client Identifier", "Client Secret", "Grant Type", "Protected Resource", "Refresh Token", "Resource Owner", "Resource Server", "Response Type", and "Token Endpoint" defined by The OAuth 2.0 Authorization Framework in [RFC 6749](https://datatracker.ietf.org/doc/rfc6749/), the terms "Claim Name", "Claim Value", "JSON Web Token (JWT)", and "JWT Claims Set" defined by JSON Web Token (JWT) in [RFC 7519](https://datatracker.ietf.org/doc/7519/), and the terms "Authentication Request", "Relying Party (RP)", "End User (EU)", "ID Token", and "OpenID Provider (OP)" defined by [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html).
 
 This specification also defines the following terms:
 
 **ID Assertion Token (IDT)**
-A JWT which is signed by an OP and contains information to identify its owner.
-It follows the Proof-of-Possession Key Semantics for JSON Web Tokens of [RFC 7800](https://www.rfc-editor.org/rfc/rfc7800) and therefore contains the public key of the owner's Client.
-It is an ID Token, as defined in [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html), but it contains a configurable subset of claims, since it is meant to be transferred to other End Users and MUST NOT leak any undesired data.
+A JWT which is signed by an OP and contains information to identify its End User.
+It follows the Proof-of-Possession Key Semantics for JSON Web Tokens of [RFC 7800](https://www.rfc-editor.org/rfc/rfc7800) and therefore contains the public key of the End User's Relying Party.
+It is an ID Token, as defined in [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html), but it contains a configurable subset of claims, since it is meant to be transferred to other End User's Relying Parties and MUST NOT leak any undesired data.
 
 
 ## 2. Overview
 
 The mechanism has the following three basic steps:
 
-1. **User Authentication**: The End User MUST authenticate to its own OpenID Provider.
-2. **Client Registration**: The End User MUST register an asymmetric key pair for its Client at the OpenID Provider which issues an ID Assertion Token.
-3. **Client Authentication**: The Client uses its key pair and the ID Assertion Token to authenticate as its Resource Owner to other Resource Owners.
+1. **End User Authentication**: The End User MUST authenticate to its own OpenID Provider. This is done in the OpenID Authentication Request.
+2. **Relying Party Registration**: The Relying Party MUST register a public key and prove possession of the related private key to the OpenID Provider. The OpenID Provider then issues and ID Assertion Token in the Token Response.
+3. **End User Authentication**: The Relying Parties MUST authenticate as their End Users to each other by presenting the ID Assertion Token and proving possession of their private keys. This typically happens in the first message exchanges between the Relying Parties where they can also exchange authenticated secrets for End-to-End Encryption.
+4. **Secure Communication**: Now, each Relying Party knows the identity of the remote End User and the public key of the remote Relying Party. From now on, they can communicate in a secure way.
 
 ```
-   +----------------+                                 +----------------+
-   |                |                                 |                |
-   |      OP A      |                                 |      OP B      |
-   |                |                                 |                |
-   +----------------+                                 +----------------+
-       ^        ^                                         ^        ^    
-       |        |                                         |        |    
-      (1)      (2)                                       (1)      (2)   
-     AuthN    Token                                     AuthN    Token  
-    Request  Request                                   Request  Request 
-       |        |                                         |        |    
-       v        v                                         v        v    
-   +----------------+                                 +----------------+
-   |                |-------------------------------->|                |
-   |    Client A    |   (3) (Mutual) Authentication   |    Client B    |
-   |                |<--------------------------------|                |
-   +----------------+                                 +----------------+
+     +------------+                              +------------+
+     |            |                              |            |
+     |    OP A    |                              |    OP B    |
+     |            |                              |            |
+     +------------+                              +------------+
+       ^        ^                                  ^        ^    
+       |        |                                  |        |    
+      (1)      (2)                                (1)      (2)   
+     AuthN    Token                              AuthN    Token  
+    Request  Request                            Request  Request 
+       |        |                                  |        |    
+       v        v                                  v        v    
+     +------------+   (3) EU Authentication      +------------+
+     |            |<---------------------------->|            |
+     |    RP A    |   (4) Secure Communication   |    RP B    |
+     |            |<---------------------------->|            |
+     +------------+                              +------------+
 ```
+Fig. 1: The four steps to establish secure communication between two Relying Parties.
+
+The next subsections describe an overview over the most important parts of these four steps.
 
 
 ### 2.1. End User Authentication
 
-The Client performs an Authentication Request as described in the [OpenID Connect Specification in section 3.1.2.1](https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest).
-Just like in OpenID Connect, the `scope` parameter provided by the Client MUST contain the value `openid`.
-If the scope `openid` is not provided, or the End User has rejected it, the OpenID Provider MUST NOT issue an ID Assertion Token.
+This section describes how an End User authenticates to the OpenID Provider.
+
+To initialize the End User Authentication, the Relying Party performs an Authentication Request as described in [section 3.1.2.1 of the OpenID Connect Specification](https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest).
+The target of the Authentication Request is that the End User authenticates to the OpenID Provider so that the Relying Party can request an ID Assertion Token with claims in it which identify the End User.
 
 ```
-   +--------------+     (1) AuthN Request        +---------------------+
-   |              |----------------------------->|                     |
-   |    Client    |     (3) AuthN Response       |   OpenID Provider   |
-   |              |<-----------------------------|                     |
-   +--------------+                              +---------------------+
+     +---------------+  (1) AuthN Request   +-----------------+
+     |               |--------------------->|                 |
+     | Relying Party |  (2) AuthN Response  | OpenID Provider |
+     |               |<---------------------|                 |
+     +---------------+                      +-----------------+
 ```
+Fig. 2: The OpenID Connect Authentication Request and Response.
 
-The Client MUST request claims for the ID Assertion Token like claims for the ID Token or the UserInfo Endpoint.
-This means, that if any claims (e.g., `name`, `given_name`, or `family_name`) should be present in the ID Assertion Token, the Client MUST request access to the related scope (e.g., `profile`).
-If the End User has not accepted some of the scopes, the related claims MUST NOT be present, neither in the ID Token or UserInfo Endpoint, nor in the ID Assertion Token.
-So, the set of claims which could be present in the ID Assertion Token MUST be equal to the set of claims which could be present in the ID Token or the UserInfo Endpoint.
+Just like in OpenID Connect, the Relying Party MUST request a `scope` parameter which MUST contain the value `openid`.
+The End User can then decide whether to grant the `openid` scope or to reject it.
+If the scope `openid` is not provided, or the End User rejects it, the OpenID Provider MUST NOT issue an ID Assertion Token.
 
-Just like the claims for the ID Token or the UserInfo Endpoint, the claims in the ID Assertion Token MAY be further restricted.
-This is to prevent that e.g., the remote Client which receives the ID Assertion Token, gets the email address of the End User via the ID Assertion Token, if only the local Client needs the email address from the ID Token.
+If the Relying Party needs more than the basic `openid` claims in the ID Assertion Token, the Relying Party MUST request additional scopes like for the ID Token or the UserInfo Endpoint.
+This means, that if additional claims (e.g., `name`, `given_name`, or `family_name`) SHOULD be present in the ID Assertion Token, the Relying Party MUST request access to the related scope (e.g., `profile`).
+If the End User rejects some of the requested scopes, the related claims MUST NOT be present, neither in the ID Token or UserInfo Endpoint, nor in the ID Assertion Token.
+So, the set of claims which MAY be present in the ID Assertion Token MUST be equal to the set of claims which MAY be present in the ID Token or the UserInfo Endpoint.
+
+Just like the claims for the ID Token or the UserInfo Endpoint, Relying Party MAY further restrict the claims which will be present in the ID Assertion Token.
+This will prevent that e.g., the remote Relying Party which receives the ID Assertion Token, gets the email address of the End User via the ID Assertion Token, while the local Relying Party needs the email address from the ID Token.
 
 So, the claims provided in the ID Assertion Token are a subset of the claims permitted by the End User.
 This subset can be defined using the OPTIONAL `claims` parameter in the Authorization Request as defined in [section 5.5 of the OpenID Connect Specification](https://openid.net/specs/openid-connect-core-1_0.html#ClaimsParameter).
-The claims in the ID Assertion Token can be defined with the new `id_assertion_token` attribute of the `claims` parameter like this:
+The claims which will be present in the ID Assertion Token can be defined with the new `id_assertion_token` attribute of the `claims` parameter as in Fig.3.
 
 ```json
 {
@@ -156,50 +166,62 @@ The claims in the ID Assertion Token can be defined with the new `id_assertion_t
   }
 }
 ```
+Fig. 3: Example for the OPTIONAL `claims` parameter in the Authentication Request.
 
-If the Client does not specify the `id_assertion_token` parameter or the Client does not specify the OPTIONAL `claims` parameter, the ID Assertion Token will contain all the permitted claims.
+If the Relying Party does not specify the `id_assertion_token` parameter or it does not specify the OPTIONAL `claims` parameter, the ID Assertion Token MUST contain all the permitted claims.
 
 **Example:**
 
-The Client performs an Authorization Request.
-Thereby, the Client requests the scopes `openid`, `profile`, and `email` and defines the `scope` parameter as described above.
-Then the End User grants access to the scopes.
+The Relying Party performs an Authorization Request.
+Thereby, the Relying Party requests the scopes `openid`, `profile`, and `email` and defines the `scope` parameter as described in Fig.3.
+Then the End User grants access to the requested scopes.
 
-When the Client performs a valid Token Request, the OpenID Provider issues an ID Token which contains the claims `given_name`, `email`, and `email_verified` in the ID Token, and an ID Assertion Token which contains the claims `given_name`, `nickname`, and `family_name`.
-When the Client contacts the UserInfo Endpoint, the OpenID Provider issues the claims `given_name`, `nickname`, `email`, and `email_verified`.
+When the Relying Party performs a valid Token Request, the OpenID Provider issues an ID Token which contains the claims `given_name`, `email`, and `email_verified` in the ID Token, and an ID Assertion Token which contains the claims `given_name`, `nickname`, and `family_name`.
+When the Relying Party contacts the UserInfo Endpoint, the OpenID Provider issues the claims `given_name`, `nickname`, `email`, and `email_verified`.
 
-Since the ID Assertion Token does not permit a remote client to access information about the Resource Owner, the remote Client has only access to the claims provided in the ID Assertion Token.
-The local Client can use this to hide e.g., the email address of the Resource Owner
+Since the ID Assertion Token does not permit a remote Relying Party to access information about the Resource Owner, the remote Relying Party has only access to the claims which are provided in the ID Assertion Token.
+The local Relying Party can use this to hide e.g., the email address of the Resource Owner.
 
-### 2.2. Client Registration
+### 2.2. Relying Party Registration
+
+This section describes how a Relying Party registers its asymmetric key pair to the OpenID Provider and how it requests an ID Assertion Token.
 
 If the End User has not granted the `openid` scope, the OpenID Provider MUST NOT issue an ID Assertion Token and the Token Request will be exactly as described in [section 3.1.3.1 of the OpenID Connect Specification](https://openid.net/specs/openid-connect-core-1_0.html#TokenRequest).
 Otherwise, if the End User has granted the `openid` scope, the Token Response will be extended as described in this section.
 
-After the Client's Token Request has reached the OpenID Provider, the OpenID Provider MUST know the Client's public key and MUST have verified, that the Client possesses the related private key.
-If the Client has not provided any public key or has not proved the possession of a related private key, the OpenID Provider MUST NOT issue an ID Assertion Token.
+First, the Relying Party MUST get an asymmetric key pair.
+It is RECOMMENDED to create a new one, but the Relying Party can also use an already existing key pair, e.g., an X.509 certificate.
+
+Then, the Relying Party MUST perform the Token Request.
+Thereby, the Relying Party MUST let the OpenID Provider know, to which public key the OpenID Provider MUST bind the ID Assertion Token to.
+It is RECOMMENDED that the Relying Party provides a new public key to the OpenID Provider in the Token Request.
+But the Relying Party can also reference to a public key which is already known to the OpenID Provider, e.g., a pre-registered X.509 certificate.
+
+The Relying Party also MUST prove possession of the related private key in the Token Request.
+The process how the Relying Party proves the possession of the related private key to the OpenID Provider is not covered by this document.
+So the Relying Party can prove possession of the related private key with a [DPoP challenge](https://datatracker.ietf.org/doc/draft-ietf-oauth-dpop/), [HTTP Message Signatures](https://httpwg.org/http-extensions/draft-ietf-httpbis-message-signatures.html), a [Mutual TLS challenge](https://datatracker.ietf.org/doc/html/rfc8705), or any other kind of proof.
 
 ```
-   +--------------+     (1) Token Request        +---------------------+
-   |              |----------------------------->|                     |
-   |    Client    |     (3) Token Response       |   OpenID Provider   |
-   |              |<-----------------------------|                     |
-   +--------------+                              +---------------------+
+     +---------------+  (1) Token Request   +-----------------+
+     |               |--------------------->|                 |
+     | Relying Party |  (2) Token Response  | OpenID Provider |
+     |               |<---------------------|                 |
+     +---------------+                      +-----------------+
 ```
+Fig. 4: The OpenID Connect Token Request and Response.
 
-It is RECOMMENDED that the Client provides a public key and the proof of possession of the related private key in the Token Request.
-An example for an Elliptic Curve key pair is provided in [section 5.3](#53-client-authentication-with-elliptic-curve-certificates) of this document.
-Anyway, in some cases, this MAY require more requests, e.g., for a Diffie-Hellman key pair, as described in [section 5.4](#54-client-authentication-with-diffie-hellman-key-exchange) of this document.
+An example for how the Relying Party MAY provide an Elliptic Curve key pair together with a Proof-of-Possession in the Token Request is provided in [section 5.3](#53-client-authentication-with-elliptic-curve-certificates) of this document.
+In some cases, the public key and the prove cannot be provided in the same requests, e.g., for a Diffie-Hellman key pair, as described in [section 5.4](#54-client-authentication-with-diffie-hellman-key-exchange) of this document.
 
-If the Token Request is valid and the Client proved Possession of the related private key, the OpenID Provider MUST respond with a Token Response as specified in [section 3.1.3.3 of the OpenID Connect Specification](https://openid.net/specs/openid-connect-core-1_0.html#TokenResponse).
+If the Token Request is valid and the Relying Party proved possession of the related private key, the OpenID Provider MUST respond with a Token Response as specified in [section 3.1.3.3 of the OpenID Connect Specification](https://openid.net/specs/openid-connect-core-1_0.html#TokenResponse).
 Thereby, the OpenID Provider MUST also issue an ID Assertion Token in the `id_assertion_token` parameter.
 
 This ID Assertion Token is a JWT, which contains the claims which were specified in the Authentication Request, as described in [section 2.1](#21-end-user-authentication) of this document.
-In its header, the ID Assertion Token contains the verified public key to identify the Client.
+In its header, the ID Assertion Token contains the verified public key to identify the Relying Party.
 A detailed specification of the ID Assertion Token is provided in [section 3](#3-id-assertion-token) of this document.
 
 
-### 2.3. Client Authentication
+### 2.3. Relying Party Authentication
 
 To exchange authenticated messages between Client A and Client B, the Clients MUST authenticate themselves.
 Therefore, they MUST exchange their ID Assertion Tokens and validate them.
@@ -235,6 +257,7 @@ In case of a Diffie-Hellman public key, both Clients MUST first compute the shar
    |                |<--------------------------------|                |
    +----------------+                                 +----------------+
 ```
+
 <!--
 In the first message that Client A sends to Client B, Client A provides its ID Assertion Token.
 Client B MUST NOT trust, that this message originally comes from Client A, before Client A proved possession of the ID Assertion Token.
