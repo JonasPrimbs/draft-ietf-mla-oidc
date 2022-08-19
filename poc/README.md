@@ -41,7 +41,7 @@ The Docker Compose composition provided [here](./docker-compose.yaml) uses the f
 
 ### Server Configuration
 
-This section describes the configuration parameters of the IAT Endpoint.
+This section describes the configuration parameters of the RIDT Endpoint.
 They are applied by injecting them as environment variables to the running application.
 This can be done by defining the variables in the Docker container or by placing an `.env` file in the execution directory.
 
@@ -56,9 +56,24 @@ KEY_FILE="/path/to/private_key"
 ```
 
 
+#### Key ID
+
+The ID of the OpenID Provider's Public Key provided in the `jwks_uri` endpoint.
+
+Example 1:
+```bash
+KID="abcdef"
+```
+
+Example 2:
+```bash
+KID=1
+```
+
+
 #### Signing Algorithm
 
-Signing algorithm for ID Assertion Token signatures.
+Signing algorithm for Remote ID Token signatures.
 
 Allowed values are:
 
@@ -71,7 +86,7 @@ Allowed values are:
 
 Example:
 ```bash
-SIGNING_ALG="ES256"
+ALG="ES256"
 ```
 
 
@@ -79,25 +94,25 @@ SIGNING_ALG="ES256"
 
 Absolute URI to the OpenID Provider's Userinfo Endpoint.
 
-This URI is used by the IAT Endpoint to request the claims of the ID Assertion Token from the OpenID Provider.
-**Make sure that the running IAT Endpoint can access the OpenID Provider's Userinfo Endpoint via this URI!**
+This URI is used by the RIDT Endpoint to request the claims of the Remote ID Token from the OpenID Provider.
+**Make sure that the running RIDT Endpoint can access the OpenID Provider's Userinfo Endpoint via this URI!**
 
 Example 1:
 ```bash
-USERINFO_EP="https://openid-provider.sample.org/userinfo"
+USERINFO="https://openid-provider.sample.org/userinfo"
 ```
 
 Example 2:
 ```bash
-USERINFO_EP="http://localhost:8080/userinfo"
+USERINFO="http://localhost:8080/userinfo"
 ```
 
 
 #### Issuer Claim
 
-The ID Assertion Token's Issuer.
+The Remote ID Token's Issuer.
 
-This is the value of the `iss` claim of the issued ID Assertion Token.
+This is the value of the `iss` claim of the issued Remote ID Token.
 Typically, this is the public URI of the OpenID Provider where `.well-known/openid-configuration` is added to request the OpenID configuration.
 
 Example:
@@ -108,7 +123,7 @@ ISSUER="https://accounts.sample.org/"
 
 #### Token Validity Period
 
-The ID Assertion Token's validity period in seconds.
+The Remote ID Token's validity period in seconds.
 
 Default Value: `3600` (1 hour).
 
