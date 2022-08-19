@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  proxy:
+    image: traefik:v2.8
+    ports:
+      - 8080:80
+  op:
+    image: quay.io/keycloak/keycloak:19.0.1
+    depends_on:
+      - proxy
+    secrets:
+      - key_file
+    env_file:
+      - ridt.env
+    volumes:
+      - user-database
+  ridt:
+    build:
+      context: ./ridt/
+      dockerfile: dockerfile
+    depends_on:
+      - proxy
+      - op
+    secrets:
+      - key_file
+    env_file:
+      - ridt.env
+
+volumes:
+  user-database:
+
+secrets:
+  key_file:
+    file: ./.secrets/key.pem
