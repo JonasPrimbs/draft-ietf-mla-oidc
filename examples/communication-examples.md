@@ -157,7 +157,7 @@ Example for JSON-encoded Response Object:
 ```json
 {
   "remote_id_token": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCtEUE9QIiwia2lkIjoxfQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLnNhbXBsZS5vcmcvIiwic3ViIjoidXNlckBzYW1wbGUub3JnIiwiaWF0IjoxNjU5MzU1MjA1LCJuYmYiOjE2NTkzNTUyMDUsImV4cCI6MTY1OTM1ODgwNSwibm9uY2UiOiIvVDE3NnF0RXcvdTM1UU9yWFRHVjFubFVEVTVFYUV6VyIsImNuZiI6eyJqd2siOnsia3R5IjoiRUMiLCJjcnYiOiJQLTI1NiIsIngiOiJjWFE4YmRlTmVlU3dmTGtIek1mQVVGckhsTFhaV3ZKcm1vTTJzQ1BHVW5nIiwieSI6IjdEcHdtT29ISW5kMFFjUkVSVEtaQUNpOWJ3c2E1Z0dLREd4RnhtNDhHUkEifX0sIm5hbWUiOiJKb2huIFNtaXRoIiwiZW1haWwiOiJqb2huLnNtaXRoQG1haWwuc2FtcGxlLm9yZyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlfQ.Y_ag4noTNgauNoFrhUP8dPbZAK2dC4iaFtEuM2yX_Me-Rlvy-oCR7CQvkZc7-Ejq4l617Ke-6ywV408OvRV-MQ",
-  "expires_in": 3600,
+  "expires_in": 3595,
   "claims": [
     "name",
     "email",
@@ -176,7 +176,7 @@ Connection: Closed
 
 {
   "remote_id_token": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCtEUE9QIiwia2lkIjoxfQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLnNhbXBsZS5vcmcvIiwic3ViIjoidXNlckBzYW1wbGUub3JnIiwiaWF0IjoxNjU5MzU1MjA1LCJuYmYiOjE2NTkzNTUyMDUsImV4cCI6MTY1OTM1ODgwNSwibm9uY2UiOiIvVDE3NnF0RXcvdTM1UU9yWFRHVjFubFVEVTVFYUV6VyIsImNuZiI6eyJqd2siOnsia3R5IjoiRUMiLCJjcnYiOiJQLTI1NiIsIngiOiJjWFE4YmRlTmVlU3dmTGtIek1mQVVGckhsTFhaV3ZKcm1vTTJzQ1BHVW5nIiwieSI6IjdEcHdtT29ISW5kMFFjUkVSVEtaQUNpOWJ3c2E1Z0dLREd4RnhtNDhHUkEifX0sIm5hbWUiOiJKb2huIFNtaXRoIiwiZW1haWwiOiJqb2huLnNtaXRoQG1haWwuc2FtcGxlLm9yZyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlfQ.Y_ag4noTNgauNoFrhUP8dPbZAK2dC4iaFtEuM2yX_Me-Rlvy-oCR7CQvkZc7-Ejq4l617Ke-6ywV408OvRV-MQ",
-  "expires_in": 3600,
+  "expires_in": 3595,
   "claims": [
     "name",
     "email",
