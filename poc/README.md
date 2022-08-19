@@ -2,7 +2,7 @@
 
 This document describes our proof-of-concept implementation for the Message Layer Authentication with OpenID Connect.
 
-The provided implementation is a [Go](https://golang.org/) application which implements a REST endpoint for the ID Assertion Token UserInfo endpoint.
+The provided implementation is a [Go](https://golang.org/) application which implements a REST endpoint for the Remote ID Token UserInfo endpoint.
 Using a reverse proxy in front, it can be mounted to any OpenID Provider implementation.
 
 **Warning:**
@@ -13,27 +13,30 @@ We do not guarantee a secure implementation!
 
 ## Documentation
 
-The REST API is described in the provided OpenAPI format [here](./docs/openapi.yaml).
+This section provides an introduction to the architecture and the configuration of the Remote ID Token Endpoint.
+
 
 ### Architecture
 
+The following figure shows the overall architecture how to use the provided Remote ID Token (RIDT) Endpoint with any OpenID Provider implementation.
+
 ```
-         +---------+                +----------+
-         |         |       /*       |  OpenID  |
-         |         |--------------->| Provider |
-         |         |                +----------+
- Ingress | Reverse |
--------->|  Proxy  |
-         |         |                +----------+
-         |         | /userinfo/ridt |   IAT    |
-         |         |--------------->| Endpoint |
-         +---------+                +----------+
+                      +---------+                +----------+
+                      |         |       /*       |  OpenID  |
+                      |         |--------------->| Provider |
+   ------             |         |                +----------+
+ /        \  hostname | Reverse |
+| Internet |--------->|  Proxy  |
+ \        /           |         |                +----------+
+   ------             |         | /userinfo/ridt |   RIDT   |
+                      |         |--------------->| Endpoint |
+                      +---------+                +----------+
 ```
 
-The provided Docker Compose composition uses the following implementations:
+The Docker Compose composition provided [here](./docker-compose.yaml) uses the following implementations:
 
-- Reverse Proxy: Traefik Proxy
-- OpenID Provider: Keycloak
+- Reverse Proxy: [Traefik Proxy](https://traefik.io/traefik/)
+- OpenID Provider: [Keycloak](https://www.keycloak.org/)
 
 
 ### Server Configuration
@@ -99,7 +102,7 @@ Typically, this is the public URI of the OpenID Provider where `.well-known/open
 
 Example:
 ```bash
-ISSUER="https://openid-provider.sample.org/"
+ISSUER="https://accounts.sample.org/"
 ```
 
 
@@ -116,3 +119,5 @@ TOKEN_PERIOD=3600
 
 
 ### REST Endpoint
+
+The REST API is described in the OpenAPI format provided [here](./docs/openapi.yaml).
