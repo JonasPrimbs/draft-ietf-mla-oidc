@@ -6,7 +6,7 @@ info:
 servers:
   - url: 'http://localhost:8080/sso/realms/demo/protocol/openid-connect/userinfo'
 paths:
-  /iat:
+  /ridt:
     post:
       summary: Request a new RIDT
       description: Request a new Remote ID Token
