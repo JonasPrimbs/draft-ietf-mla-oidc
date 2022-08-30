@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: OIDC RIDT Userinfo Endpoint
   description: Endpoint for OpenID Connect's Remote ID Token endpoint for userinfo.
-  version: 0.1.0
+  version: 0.1.1
 servers:
   - url: 'http://localhost:8080/sso/realms/demo/protocol/openid-connect/userinfo'
 paths:
@@ -127,17 +127,19 @@ components:
       format: jwt
       description: |
         A JSON Web Token (JWT) which MUST
-          - contain the client's public key in the JWT header (`"jwk": <public-key>`)
-          - be issued by the client (`"iss": "<client-id>"`)
-          - have the OpenID Provider as audience (`"aud": "<op-id>"`)
-          - have the requested user's ID as subject (`"sub": "<user-id>"`)
-          - have an issued at date (`"iat": <issuance-time>`)
-          - have an expiration date (`"exp": <expiration-time>`)
-          - be valid for at most 10 minutes (`"exp"` minus `"nbf"` or `"iat"` is less or equal `600`)
-          - contain a unique nonce (`"nonce": "<random string>"`), OR a unique JWT ID (`"jti": "<jwt-id>"`), OR both
-          - contain the requested claims as a comma-separated string (`"claims": "<claim-0> <claim-1>"`)
+          - be signed with an asymmetric algorithm (`ES256`, `ES384`, `ES512`, `RS256`, `RS384`, or `RS512` allowed).
+          - have the type `"typ": "JWT"` in the header.
+          - contain the client's public key in the JWT header (`"jwk": <public-key>`).
+          - be issued by the client (`"iss": "<client-id>"`).
+          - have the OpenID Provider as audience (`"aud": "<op-id>"`).
+          - have the requested user's ID as subject (`"sub": "<user-id>"`).
+          - have an issued at date (`"iat": <issuance-time>`).
+          - have an expiration date (`"exp": <expiration-time>`).
+          - be valid for at most 10 minutes (`"exp"` minus `"nbf"` or `"iat"` is less or equal `600`).
+          - contain a unique nonce (`"nonce": "<random string>"`).
+          - contain the requested claims as a space delimited string (`"token_claims": "<claim-0> <claim-1>"`)
           - be signed with the client's private key
-      example: eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6ImNYUThiZGVOZWVTd2ZMa0h6TWZBVUZySGxMWFpXdkpybW9NMnNDUEdVbmciLCJ5IjoiN0Rwd21Pb0hJbmQwUWNSRVJUS1pBQ2k5YndzYTVnR0tER3hGeG00OEdSQSJ9fQ.eyJpc3MiOiJjbGllbnQuc2FtcGxlLm9yZyIsInN1YiI6InVzZXJAc2FtcGxlLm9yZyIsImF1ZCI6Imh0dHBzOi8vYWNjb3VudHMuc2FtcGxlLm9yZy8iLCJpYXQiOjE2NTkzNTUyMDAsIm5iZiI6MTY1OTM1NTIwMCwiZXhwIjoxNjU5MzU1MjYwLCJub25jZSI6IlZqZlU0Nlo1eWtJaG43akp6cVpvV0srcGFxNjNFS3VIIiwiY2xhaW1zIjoibmFtZSBlbWFpbCBlbWFpbF92ZXJpZmllZCJ9.6iGZaJrC5dcbYWZbgZKSNq9k0GZvL0jeXrD-8iv_wt1ZYgEuI6SLoZWc5TGayheDS7Kr1uwKTIa6Nm8RCv0TYQ
+      example: eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6ImNYUThiZGVOZWVTd2ZMa0h6TWZBVUZySGxMWFpXdkpybW9NMnNDUEdVbmciLCJ5IjoiN0Rwd21Pb0hJbmQwUWNSRVJUS1pBQ2k5YndzYTVnR0tER3hGeG00OEdSQSJ9fQ.eyJpc3MiOiJjbGllbnQuZXhhbXBsZS5vcmciLCJzdWIiOiJqb2huLnNtaXRoQGFjY291bnRzLmV4YW1wbGUub3JnIiwiYXVkIjoiaHR0cHM6Ly9hY2NvdW50cy5leGFtcGxlLm9yZy8iLCJpYXQiOjE2NTkzNTUyMDUsIm5iZiI6MTY1OTM1NTIwNSwiZXhwIjoxNjU5MzU1MjM1LCJub25jZSI6IlZqZlU0Nlo1eWtJaG43akp6cVpvV0srcGFxNjNFS3VIIiwidG9rZW5fY2xhaW1zIjoibmFtZSBlbWFpbCBlbWFpbF92ZXJpZmllZCIsInRva2VuX2xpZmV0aW1lIjozNjAwLCJ0b2tlbl9ub25jZSI6IkJqeHEyN0ZVbEIwWEFXMmliK1pzNnM1N1JRcmNtVXhBIn0.Z6uoiakqd7MAAJkQ8Bry6SHrp0dQJyd5PWBgsu1EJMHBygDfB1pC_UDiakcaB5QO6-Ec3eYkNlztTVw_XBR0Tg
     IatResponse:
       type: object
       properties:
@@ -149,15 +151,11 @@ components:
           description: Number of seconds until the Remote ID Token expires.
           example: 3600
         claims:
-          type: array
-          description: Array of claims provided in the Remote ID Token.
-          items:
-            type: string
-          example: ["name", "email", "email_verified"]
+          type: string
+          description: Space delimited claims provided in the Remote ID Token.
+          example: "name email email_verified"
       required:
         - id_assertion_token
-        - expires_in
-        - claims
     RemoteIdToken:
       type: string
       format: jwt+dpop
@@ -169,11 +167,11 @@ components:
           - have an issued at date (`"iat": <issuance-time>`)
           - have an expiration date (`"exp": <expiration-time>`)
           - be valid for at most 24 hours (`"exp"` minus `"nbf"` or `"iss"` is less or equal `86400`)
-          - contain a unique nonce (`"nonce": "<random string>"`), OR a unique JWT ID (`"jti": "<jwt-id>"`), OR both
+          - contain a unique nonce (`"nonce": "<random string>"`). If provided in the request, this MUST be the `token_nonce`.
           - contain the client's public key as confirmation claim (`"cnf": { "jwk": <public-key> }`)
           - contain the requested claims (e.g., `"name": "<full-name>"`, `"email": "<email-address>"`, ...), but only if they are covered by the scopes of the provided Access Token
           - be signed with the OpenID Provider's private key
-      example: eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCtEUE9QIiwia2lkIjoxfQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLnNhbXBsZS5vcmcvIiwic3ViIjoidXNlckBzYW1wbGUub3JnIiwiaWF0IjoxNjU5MzU1MjA1LCJuYmYiOjE2NTkzNTUyMDUsImV4cCI6MTY1OTM1ODgwNSwibm9uY2UiOiIvVDE3NnF0RXcvdTM1UU9yWFRHVjFubFVEVTVFYUV6VyIsImNuZiI6eyJqd2siOnsia3R5IjoiRUMiLCJjcnYiOiJQLTI1NiIsIngiOiJjWFE4YmRlTmVlU3dmTGtIek1mQVVGckhsTFhaV3ZKcm1vTTJzQ1BHVW5nIiwieSI6IjdEcHdtT29ISW5kMFFjUkVSVEtaQUNpOWJ3c2E1Z0dLREd4RnhtNDhHUkEifX0sIm5hbWUiOiJKb2huIFNtaXRoIiwiZW1haWwiOiJqb2huLnNtaXRoQG1haWwuc2FtcGxlLm9yZyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlfQ.Y_ag4noTNgauNoFrhUP8dPbZAK2dC4iaFtEuM2yX_Me-Rlvy-oCR7CQvkZc7-Ejq4l617Ke-6ywV408OvRV-MQ
+      example: eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCtEUE9QIiwia2lkIjoxfQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmV4YW1wbGUub3JnLyIsInN1YiI6ImpvaG4uc21pdGhAYWNjb3VudHMuZXhhbXBsZS5vcmciLCJpYXQiOjE2NTkzNTUyMDUsIm5iZiI6MTY1OTM1NTIwNSwiZXhwIjoxNjU5MzU4ODA1LCJub25jZSI6IlZqZlU0Nlo1eWtJaG43akp6cVpvV0srcGFxNjNFS3VIIiwiY25mIjp7Imp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6ImNYUThiZGVOZWVTd2ZMa0h6TWZBVUZySGxMWFpXdkpybW9NMnNDUEdVbmciLCJ5IjoiN0Rwd21Pb0hJbmQwUWNSRVJUS1pBQ2k5YndzYTVnR0tER3hGeG00OEdSQSJ9fSwibmFtZSI6IkpvaG4gU21pdGgiLCJlbWFpbCI6ImpvaG4uc21pdGhAbWFpbC5zYW1wbGUub3JnIiwiZW1haWxfdmVyaWZpZWQiOnRydWV9.TEIehA9Xzmo72QoWMTwlkHA2FzypvGq8mAnGyJLD7H3TAYodrMzJnqyTaU7N36Qij2w5-8IpoPIzahGoKC6J_w
   securitySchemes:
     iat_auth:
       type: oauth2
