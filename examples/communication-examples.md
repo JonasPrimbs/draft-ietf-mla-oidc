@@ -76,38 +76,82 @@ Example for parsed JWT Payload:
 
 ```json
 {
-  "iss": "client.sample.org",
-  "sub": "user@sample.org",
-  "aud": "https://accounts.sample.org/",
-  "iat": 1659355200,
-  "nbf": 1659355200,
-  "exp": 1659355260,
+  "iss": "client.example.org",
+  "sub": "john.smith@accounts.example.org",
+  "aud": "https://accounts.example.org/",
+  "iat": 1659355205,
+  "nbf": 1659355205,
+  "exp": 1659355235,
   "nonce": "VjfU46Z5ykIhn7jJzqZoWK+paq63EKuH",
-  "claims": "name email email_verified"
+  "token_claims": "name email email_verified",
+  "token_lifetime": 3600,
+  "token_nonce": "Bjxq27FUlB0XAW2ib+Zs6s57RQrcmUxA"
 }
 ```
 
 Example for Token Request JWT:
 
 ```jwt
-eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6ImNYUThiZGVOZWVTd2ZMa0h6TWZBVUZySGxMWFpXdkpybW9NMnNDUEdVbmciLCJ5IjoiN0Rwd21Pb0hJbmQwUWNSRVJUS1pBQ2k5YndzYTVnR0tER3hGeG00OEdSQSJ9fQ.eyJpc3MiOiJjbGllbnQuc2FtcGxlLm9yZyIsInN1YiI6InVzZXJAc2FtcGxlLm9yZyIsImF1ZCI6Imh0dHBzOi8vYWNjb3VudHMuc2FtcGxlLm9yZy8iLCJpYXQiOjE2NTkzNTUyMDAsIm5iZiI6MTY1OTM1NTIwMCwiZXhwIjoxNjU5MzU1MjYwLCJub25jZSI6IlZqZlU0Nlo1eWtJaG43akp6cVpvV0srcGFxNjNFS3VIIiwiY2xhaW1zIjoibmFtZSBlbWFpbCBlbWFpbF92ZXJpZmllZCJ9.6iGZaJrC5dcbYWZbgZKSNq9k0GZvL0jeXrD-8iv_wt1ZYgEuI6SLoZWc5TGayheDS7Kr1uwKTIa6Nm8RCv0TYQ
+eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6ImNYUThiZGVOZWVTd2ZMa0h6TWZBVUZySGxMWFpXdkpybW9NMnNDUEdVbmciLCJ5IjoiN0Rwd21Pb0hJbmQwUWNSRVJUS1pBQ2k5YndzYTVnR0tER3hGeG00OEdSQSJ9fQ.eyJpc3MiOiJjbGllbnQuZXhhbXBsZS5vcmciLCJzdWIiOiJqb2huLnNtaXRoQGFjY291bnRzLmV4YW1wbGUub3JnIiwiYXVkIjoiaHR0cHM6Ly9hY2NvdW50cy5leGFtcGxlLm9yZy8iLCJpYXQiOjE2NTkzNTUyMDUsIm5iZiI6MTY1OTM1NTIwNSwiZXhwIjoxNjU5MzU1MjM1LCJub25jZSI6IlZqZlU0Nlo1eWtJaG43akp6cVpvV0srcGFxNjNFS3VIIiwidG9rZW5fY2xhaW1zIjoibmFtZSBlbWFpbCBlbWFpbF92ZXJpZmllZCIsInRva2VuX2xpZmV0aW1lIjozNjAwLCJ0b2tlbl9ub25jZSI6IkJqeHEyN0ZVbEIwWEFXMmliK1pzNnM1N1JRcmNtVXhBIn0.Z6uoiakqd7MAAJkQ8Bry6SHrp0dQJyd5PWBgsu1EJMHBygDfB1pC_UDiakcaB5QO6-Ec3eYkNlztTVw_XBR0Tg
 ```
 
 Example for sufficient Access Token:
 
 ```jwt
-eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6MX0.eyJpc3MiOiJodHRwczovL2FjY291bnRzLnNhbXBsZS5vcmcvIiwic3ViIjoidXNlckBzYW1wbGUub3JnIiwiYXVkIjoiaHR0cHM6Ly9hY2NvdW50cy5zYW1wbGUub3JnLyIsImlhdCI6MTY1OTM1NDMwMCwibmJmIjoxNjU5MzU0MzAwLCJleHAiOjE2NTkzNTYxMDAsIm5vbmNlIjoid001QWo3ZTdBYlpSb1hDemZja3NhTTdhQW50QUNZeHoiLCJzY29wZXMiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCJ9.uT4yYOLwEgSCaq88DRe-4jIhVAeSEJDJBCfp4iC2Sx0J0tmOFq9hESiqox67n-i4adbzm028GvzYc0oR1nhouw
+eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6MSwianRpIjoid001QWo3ZTdBYlpSb1hDemZja3NhTTdhQW50QUNZeHoifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmV4YW1wbGUub3JnLyIsInN1YiI6ImpvaG4uc21pdGhAYWNjb3VudHMuZXhhbXBsZS5vcmciLCJhdWQiOiJodHRwczovL2FjY291bnRzLmV4YW1wbGUub3JnLyIsImlhdCI6MTY1OTM1NTIwMCwibmJmIjoxNjU5MzU1MjAwLCJleHAiOjE2NTkzNTg4MDAsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwifQ.pB00n8KtCmOPqEDC16_szsn383JoZfpbFQsjhjX_bybYYzo0X7LcbFiC2JJ3uraypQ_4DEWiaDDY7ZJdNt6Brg
 ```
 
 Example for JWT HTTP Request:
 
 ```http
 POST /userinfo/ridt HTTP/1.1
-Host: accounts.sample.org
+Host: accounts.example.org
 Content-Type: application/jwt; charset=UTF-8
-Authorization: Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLnNhbXBsZS5vcmcvIiwic3ViIjoidXNlckBzYW1wbGUub3JnIiwiYXVkIjoiaHR0cHM6Ly9hY2NvdW50cy5zYW1wbGUub3JnLyIsImlhdCI6MTY1OTM1NDMwMCwibmJmIjoxNjU5MzU0MzAwLCJleHAiOjE2NTkzNTYxMDAsInNjb3BlcyI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIn0.pg5tN_67oONdG4aKGl7hJBvOjebjp9AGGYNxRbWSDetqbziepWYnWHk14gHpxAaxF6q54AWri4v5zHdq8O6Wrg
+Authorization: Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6MSwianRpIjoid001QWo3ZTdBYlpSb1hDemZja3NhTTdhQW50QUNZeHoifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmV4YW1wbGUub3JnLyIsInN1YiI6ImpvaG4uc21pdGhAYWNjb3VudHMuZXhhbXBsZS5vcmciLCJhdWQiOiJodHRwczovL2FjY291bnRzLmV4YW1wbGUub3JnLyIsImlhdCI6MTY1OTM1NTIwMCwibmJmIjoxNjU5MzU1MjAwLCJleHAiOjE2NTkzNTg4MDAsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwifQ.pB00n8KtCmOPqEDC16_szsn383JoZfpbFQsjhjX_bybYYzo0X7LcbFiC2JJ3uraypQ_4DEWiaDDY7ZJdNt6Brg
 
-eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6ImNYUThiZGVOZWVTd2ZMa0h6TWZBVUZySGxMWFpXdkpybW9NMnNDUEdVbmciLCJ5IjoiN0Rwd21Pb0hJbmQwUWNSRVJUS1pBQ2k5YndzYTVnR0tER3hGeG00OEdSQSJ9fQ.eyJpc3MiOiJjbGllbnQuc2FtcGxlLm9yZyIsInN1YiI6InVzZXJAc2FtcGxlLm9yZyIsImF1ZCI6Imh0dHBzOi8vYWNjb3VudHMuc2FtcGxlLm9yZy8iLCJpYXQiOjE2NTkzNTUyMDAsIm5iZiI6MTY1OTM1NTIwMCwiZXhwIjoxNjU5MzU1MjYwLCJub25jZSI6IlZqZlU0Nlo1eWtJaG43akp6cVpvV0srcGFxNjNFS3VIIiwiY2xhaW1zIjoibmFtZSBlbWFpbCBlbWFpbF92ZXJpZmllZCJ9.6iGZaJrC5dcbYWZbgZKSNq9k0GZvL0jeXrD-8iv_wt1ZYgEuI6SLoZWc5TGayheDS7Kr1uwKTIa6Nm8RCv0TYQ
+eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6ImNYUThiZGVOZWVTd2ZMa0h6TWZBVUZySGxMWFpXdkpybW9NMnNDUEdVbmciLCJ5IjoiN0Rwd21Pb0hJbmQwUWNSRVJUS1pBQ2k5YndzYTVnR0tER3hGeG00OEdSQSJ9fQ.eyJpc3MiOiJjbGllbnQuZXhhbXBsZS5vcmciLCJzdWIiOiJqb2huLnNtaXRoQGFjY291bnRzLmV4YW1wbGUub3JnIiwiYXVkIjoiaHR0cHM6Ly9hY2NvdW50cy5leGFtcGxlLm9yZy8iLCJpYXQiOjE2NTkzNTUyMDUsIm5iZiI6MTY1OTM1NTIwNSwiZXhwIjoxNjU5MzU1MjM1LCJub25jZSI6IlZqZlU0Nlo1eWtJaG43akp6cVpvV0srcGFxNjNFS3VIIiwidG9rZW5fY2xhaW1zIjoibmFtZSBlbWFpbCBlbWFpbF92ZXJpZmllZCIsInRva2VuX2xpZmV0aW1lIjozNjAwLCJ0b2tlbl9ub25jZSI6IkJqeHEyN0ZVbEIwWEFXMmliK1pzNnM1N1JRcmNtVXhBIn0.Z6uoiakqd7MAAJkQ8Bry6SHrp0dQJyd5PWBgsu1EJMHBygDfB1pC_UDiakcaB5QO6-Ec3eYkNlztTVw_XBR0Tg
+```
+
+## Userinfo Request Examples
+
+Example for Userinfo Request:
+
+```http
+GET /userinfo HTTP/1.1
+Host: accounts.example.org
+Authorization: Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6MSwianRpIjoid001QWo3ZTdBYlpSb1hDemZja3NhTTdhQW50QUNZeHoifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmV4YW1wbGUub3JnLyIsInN1YiI6ImpvaG4uc21pdGhAYWNjb3VudHMuZXhhbXBsZS5vcmciLCJhdWQiOiJodHRwczovL2FjY291bnRzLmV4YW1wbGUub3JnLyIsImlhdCI6MTY1OTM1NTIwMCwibmJmIjoxNjU5MzU1MjAwLCJleHAiOjE2NTkzNTg4MDAsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwifQ.pB00n8KtCmOPqEDC16_szsn383JoZfpbFQsjhjX_bybYYzo0X7LcbFiC2JJ3uraypQ_4DEWiaDDY7ZJdNt6Brg
+```
+
+## Userinfo Response Examples
+
+Example for Body of Userinfo response:
+
+```json
+{
+  "sub": "user@sample.org",
+  "name": "John Smith",
+  "given_name": "John",
+  "family_name": "Smith",
+  "email": "john.smith@mail.sample.org",
+  "email_verified": true
+}
+```
+
+Example for Userinfo HTTP response:
+
+```http
+HTTP/1.1 200 OK
+Date: Mon, 1 Aug 2022 12:00:05 UTC
+Content-Type: application/json; charset=UTF-8
+
+{
+  "sub": "user@sample.org",
+  "name": "John Smith",
+  "given_name": "John",
+  "family_name": "Smith",
+  "email": "john.smith@mail.sample.org",
+  "email_verified": true
+}
 ```
 
 ## Token Response Examples
@@ -126,12 +170,12 @@ Example for Remote ID Token Payload:
 
 ```json
 {
-  "iss": "https://accounts.sample.org/",
-  "sub": "user@sample.org",
+  "iss": "https://accounts.example.org/",
+  "sub": "john.smith@accounts.example.org",
   "iat": 1659355205,
   "nbf": 1659355205,
   "exp": 1659358805,
-  "nonce": "/T176qtEw/u35QOrXTGV1nlUDU5EaEzW",
+  "nonce": "VjfU46Z5ykIhn7jJzqZoWK+paq63EKuH",
   "cnf": {
     "jwk": {
       "kty": "EC",
@@ -149,20 +193,16 @@ Example for Remote ID Token Payload:
 Example for Remote ID Token:
 
 ```jwt
-eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCtEUE9QIiwia2lkIjoxfQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLnNhbXBsZS5vcmcvIiwic3ViIjoidXNlckBzYW1wbGUub3JnIiwiaWF0IjoxNjU5MzU1MjA1LCJuYmYiOjE2NTkzNTUyMDUsImV4cCI6MTY1OTM1ODgwNSwibm9uY2UiOiIvVDE3NnF0RXcvdTM1UU9yWFRHVjFubFVEVTVFYUV6VyIsImNuZiI6eyJqd2siOnsia3R5IjoiRUMiLCJjcnYiOiJQLTI1NiIsIngiOiJjWFE4YmRlTmVlU3dmTGtIek1mQVVGckhsTFhaV3ZKcm1vTTJzQ1BHVW5nIiwieSI6IjdEcHdtT29ISW5kMFFjUkVSVEtaQUNpOWJ3c2E1Z0dLREd4RnhtNDhHUkEifX0sIm5hbWUiOiJKb2huIFNtaXRoIiwiZW1haWwiOiJqb2huLnNtaXRoQG1haWwuc2FtcGxlLm9yZyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlfQ.Y_ag4noTNgauNoFrhUP8dPbZAK2dC4iaFtEuM2yX_Me-Rlvy-oCR7CQvkZc7-Ejq4l617Ke-6ywV408OvRV-MQ
+eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCtEUE9QIiwia2lkIjoxfQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmV4YW1wbGUub3JnLyIsInN1YiI6ImpvaG4uc21pdGhAYWNjb3VudHMuZXhhbXBsZS5vcmciLCJpYXQiOjE2NTkzNTUyMDUsIm5iZiI6MTY1OTM1NTIwNSwiZXhwIjoxNjU5MzU4ODA1LCJub25jZSI6IlZqZlU0Nlo1eWtJaG43akp6cVpvV0srcGFxNjNFS3VIIiwiY25mIjp7Imp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6ImNYUThiZGVOZWVTd2ZMa0h6TWZBVUZySGxMWFpXdkpybW9NMnNDUEdVbmciLCJ5IjoiN0Rwd21Pb0hJbmQwUWNSRVJUS1pBQ2k5YndzYTVnR0tER3hGeG00OEdSQSJ9fSwibmFtZSI6IkpvaG4gU21pdGgiLCJlbWFpbCI6ImpvaG4uc21pdGhAbWFpbC5zYW1wbGUub3JnIiwiZW1haWxfdmVyaWZpZWQiOnRydWV9.TEIehA9Xzmo72QoWMTwlkHA2FzypvGq8mAnGyJLD7H3TAYodrMzJnqyTaU7N36Qij2w5-8IpoPIzahGoKC6J_w
 ```
 
 Example for JSON-encoded Response Object:
 
 ```json
 {
-  "remote_id_token": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCtEUE9QIiwia2lkIjoxfQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLnNhbXBsZS5vcmcvIiwic3ViIjoidXNlckBzYW1wbGUub3JnIiwiaWF0IjoxNjU5MzU1MjA1LCJuYmYiOjE2NTkzNTUyMDUsImV4cCI6MTY1OTM1ODgwNSwibm9uY2UiOiIvVDE3NnF0RXcvdTM1UU9yWFRHVjFubFVEVTVFYUV6VyIsImNuZiI6eyJqd2siOnsia3R5IjoiRUMiLCJjcnYiOiJQLTI1NiIsIngiOiJjWFE4YmRlTmVlU3dmTGtIek1mQVVGckhsTFhaV3ZKcm1vTTJzQ1BHVW5nIiwieSI6IjdEcHdtT29ISW5kMFFjUkVSVEtaQUNpOWJ3c2E1Z0dLREd4RnhtNDhHUkEifX0sIm5hbWUiOiJKb2huIFNtaXRoIiwiZW1haWwiOiJqb2huLnNtaXRoQG1haWwuc2FtcGxlLm9yZyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlfQ.Y_ag4noTNgauNoFrhUP8dPbZAK2dC4iaFtEuM2yX_Me-Rlvy-oCR7CQvkZc7-Ejq4l617Ke-6ywV408OvRV-MQ",
-  "expires_in": 3595,
-  "claims": [
-    "name",
-    "email",
-    "email_verified"
-  ]
+  "remote_id_token": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCtEUE9QIiwia2lkIjoxfQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmV4YW1wbGUub3JnLyIsInN1YiI6ImpvaG4uc21pdGhAYWNjb3VudHMuZXhhbXBsZS5vcmciLCJpYXQiOjE2NTkzNTUyMDUsIm5iZiI6MTY1OTM1NTIwNSwiZXhwIjoxNjU5MzU4ODA1LCJub25jZSI6IlZqZlU0Nlo1eWtJaG43akp6cVpvV0srcGFxNjNFS3VIIiwiY25mIjp7Imp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6ImNYUThiZGVOZWVTd2ZMa0h6TWZBVUZySGxMWFpXdkpybW9NMnNDUEdVbmciLCJ5IjoiN0Rwd21Pb0hJbmQwUWNSRVJUS1pBQ2k5YndzYTVnR0tER3hGeG00OEdSQSJ9fSwibmFtZSI6IkpvaG4gU21pdGgiLCJlbWFpbCI6ImpvaG4uc21pdGhAbWFpbC5zYW1wbGUub3JnIiwiZW1haWxfdmVyaWZpZWQiOnRydWV9.TEIehA9Xzmo72QoWMTwlkHA2FzypvGq8mAnGyJLD7H3TAYodrMzJnqyTaU7N36Qij2w5-8IpoPIzahGoKC6J_w",
+  "expires_in": 3600,
+  "claims": "name email email_verified"
 }
 ```
 
@@ -171,16 +211,13 @@ Example for Token Response:
 ```http
 HTTP/1.1 201 Created
 Date: Mon, 1 Aug 2022 12:00:05 UTC
-Content-Type: application/json
-Connection: Closed
+Content-Type: application/json; charset=UTF-8
+Cache-Control: no-store
+Pragma: no-cache
 
 {
-  "remote_id_token": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCtEUE9QIiwia2lkIjoxfQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLnNhbXBsZS5vcmcvIiwic3ViIjoidXNlckBzYW1wbGUub3JnIiwiaWF0IjoxNjU5MzU1MjA1LCJuYmYiOjE2NTkzNTUyMDUsImV4cCI6MTY1OTM1ODgwNSwibm9uY2UiOiIvVDE3NnF0RXcvdTM1UU9yWFRHVjFubFVEVTVFYUV6VyIsImNuZiI6eyJqd2siOnsia3R5IjoiRUMiLCJjcnYiOiJQLTI1NiIsIngiOiJjWFE4YmRlTmVlU3dmTGtIek1mQVVGckhsTFhaV3ZKcm1vTTJzQ1BHVW5nIiwieSI6IjdEcHdtT29ISW5kMFFjUkVSVEtaQUNpOWJ3c2E1Z0dLREd4RnhtNDhHUkEifX0sIm5hbWUiOiJKb2huIFNtaXRoIiwiZW1haWwiOiJqb2huLnNtaXRoQG1haWwuc2FtcGxlLm9yZyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlfQ.Y_ag4noTNgauNoFrhUP8dPbZAK2dC4iaFtEuM2yX_Me-Rlvy-oCR7CQvkZc7-Ejq4l617Ke-6ywV408OvRV-MQ",
-  "expires_in": 3595,
-  "claims": [
-    "name",
-    "email",
-    "email_verified"
-  ]
+  "remote_id_token": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCtEUE9QIiwia2lkIjoxfQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmV4YW1wbGUub3JnLyIsInN1YiI6ImpvaG4uc21pdGhAYWNjb3VudHMuZXhhbXBsZS5vcmciLCJpYXQiOjE2NTkzNTUyMDUsIm5iZiI6MTY1OTM1NTIwNSwiZXhwIjoxNjU5MzU4ODA1LCJub25jZSI6IlZqZlU0Nlo1eWtJaG43akp6cVpvV0srcGFxNjNFS3VIIiwiY25mIjp7Imp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6ImNYUThiZGVOZWVTd2ZMa0h6TWZBVUZySGxMWFpXdkpybW9NMnNDUEdVbmciLCJ5IjoiN0Rwd21Pb0hJbmQwUWNSRVJUS1pBQ2k5YndzYTVnR0tER3hGeG00OEdSQSJ9fSwibmFtZSI6IkpvaG4gU21pdGgiLCJlbWFpbCI6ImpvaG4uc21pdGhAbWFpbC5zYW1wbGUub3JnIiwiZW1haWxfdmVyaWZpZWQiOnRydWV9.TEIehA9Xzmo72QoWMTwlkHA2FzypvGq8mAnGyJLD7H3TAYodrMzJnqyTaU7N36Qij2w5-8IpoPIzahGoKC6J_w",
+  "expires_in": 3600,
+  "claims": "name email email_verified"
 }
 ```
