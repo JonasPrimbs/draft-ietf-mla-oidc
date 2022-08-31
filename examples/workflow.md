@@ -23,7 +23,7 @@ Together with the Code Verifier, the Relying Party uses the Authorization Code a
         |                   |                   | (1.3)
         |       (1.4)       |       (1.4)       |
         | <---------------- | <---------------- |
-        |                   v                   |
+        |                   V                   |
   (1.5) |                                       |
         |                 (1.6)                 |
         | ------------------------------------> |
@@ -34,7 +34,7 @@ Together with the Code Verifier, the Relying Party uses the Authorization Code a
         |                                       |
   (1.9) |                                       |
         |                                       |
-        v                                       v
+        V                                       V
 ```
 Authorization Code Flow described in the following sections.
 
@@ -223,7 +223,7 @@ Then, the Relying Party performs a Remote ID Token Request to the OpenID Provide
          |          (2.5)          |
          | <---------------------- |
    (2.6) |                         |
-         v                         v
+         V                         V
 ```
 Remote ID Token Flow described in the following sections.
 
@@ -361,7 +361,7 @@ The Userinfo Endpoint will validate the Bearer Token for our implementation.
          |        (2.5)        |                     |
          | <------------------ |                     |
    (2.6) |                     |                     |
-         v                     v                     |
+         V                     V                     |
 ```
 Remote ID Token Flow of the provided implementation.
 
@@ -467,3 +467,174 @@ Therefore, it does the following:
 ## 3. Perform E2E Authentication
 
 TODO
+
+```
++---------------+     +---------------+
+| Relying Party |     | Remote  Party |
++---------------+     +---------------+
+        |                     |
+  (3.1) |                     |
+        |        (3.2)        |
+        | ------------------> |
+        |                     | (3.3)
+        |                     |
+        |                     | (3.4)
+        |        (3.5)        |
+        | <------------------ |
+  (3.6) |                     |
+        |                     |
+        V                     V
+```
+
+### 3.1. E2E Authentication Request Preparation
+
+TODO: Generate JWT
+  - typ: "JWT+EAQ" (E2e Auth reQuest)
+  - Contains Relying Party's Remote ID Token
+  - Contains HPKE Parameters (-> RFC 9180)
+      - Indicates, whether only authentication is requested or also encryption
+  - Signed by Relying Party's Private Key whose Public Key is provided in the Remote ID Token
+
+### 3.2. E2E Authentication Request
+
+TODO: Send JWT
+
+#### 3.2.1. E2E Authentication Request via HTTP
+
+TODO: Send JWT as `Authentication: E2EID <jwt>` HTTP Header.
+
+#### 3.2.2. E2E Authentication Request via SDP
+
+TODO: Send JWT as `a=e2eid:<jwt>` Attribute.
+
+#### 3.2.3. E2E Authentication Request via SMTP
+
+TODO: ?
+
+### 3.3. E2E Authentication Request Validation
+
+TODO: Validate
+  - Signature of RIDT (-> Check if issuer is trusted)
+  - Signature of E2E Auth Request
+
+### 3.4. E2E Authentication Response Preparation
+
+TODO: Generate JWT
+  - type: "JWT+EAS" (E2e Auth reSponse)
+  - Contains Remote Party's Remote ID Token
+  - Contains HPKE Parameters (-> RFC 9180)
+      - Indicates whether only authentication is required or also encryption
+      - MAY contain symmetric shared secret which is encrypted with Relying Party's Public Key
+  - Signed by Remote Party's Private Key whose Public Key is provided in the Remote ID Token
+
+### 3.5. E2E Authentication Response
+
+TODO: Send JWT
+
+#### 3.5.1. E2E Authentication Response via HTTP
+
+TODO: Send JWT as `Authentication: E2EID <jwt>` HTTP Header.
+
+#### 3.5.2. E2E Authentication Response via SDP
+
+TODO: Send JWT as `a=e2eid:<jwt>` Attribute.
+
+#### 3.5.3. E2E Authentication Response via SMTP
+
+TODO: ?
+
+### 3.6. E2E Authentication Response Validation
+
+TODO: Validate
+  - Signature of RIDT (-> Check if issuer is trusted)
+  - Signature of E2E Auth Response
+
+## 4. E2E Encryption Communication
+
+TODO
+
+```
++---------------+     +---------------+
+| Relying Party |     | Remote  Party |
++---------------+     +---------------+
+        |                     |
+  (4.1) |                     |
+        |        (4.2)        |
+        | ------------------> |
+        |                     | (4.3)
+        |                     |
+                  ...
+        |                     |
+  (4.1) |                     |
+        |        (4.2)        |
+        | ------------------> |
+        |                     | (4.3)
+        |                     |
+                  ...
+        |                     |
+        |                     | (4.4)
+        |        (4.5)        |
+        | <------------------ |
+  (4.6) |                     |
+        |                     |
+                  ...
+        |                     |
+  (4.1) |                     |
+        |        (4.2)        |
+        | ------------------> |
+        |                     | (4.3)
+        |                     |
+                  ...
+        |                     |
+        |                     | (4.4)
+        |        (4.5)        |
+        | <------------------ |
+  (4.6) |                     |
+        |                     |
+                  ...
+        |                     |
+        |                     | (4.4)
+        |        (4.5)        |
+        | <------------------ |
+  (4.6) |                     |
+        |                     |
+                  ...
+        |                     |
+        V                     V
+```
+
+### 4.1. Message Encryption: Relying Party
+
+TODO:
+  - Derive new symmetric sending key with Key Derivation Function (KDF)
+  - Encrypt the plain message with the new symmetric key
+  - Authenticate the cipher message
+
+### 4.2. Message Transmission: Relying Party
+
+TODO: Transmit the encrypted and authenticated message
+
+### 4.3. Message Decryption: Remote Party
+
+TODO:
+  - Verify authenticity of cipher message
+  - Derive new symmetric sending key with KDF
+  - Decrypt the cipher message
+
+### 4.4. Message Encryption: Remote Party
+
+TODO:
+  - Derive new symmetric sending key with Key Derivation Function (KDF)
+  - Encrypt the plain message with the new symmetric key
+  - Authenticate the cipher message
+
+### 4.5. Message Transmission: Remote Party
+
+TODO: Transmit the encrypted and authenticated message
+
+### 4.6. Message Decryption: Relying Party
+
+TODO:
+  - Verify authenticity of cipher message
+  - Derive new symmetric sending key with KDF
+  - Decrypt the cipher message
