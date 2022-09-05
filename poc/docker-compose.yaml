@@ -42,7 +42,7 @@ services:
       DB_DATABASE: keycloak
       DB_USER_FILE: /run/secrets/db_username
       DB_PASSWORD_FILE: /run/secrets/db_password
-      PROXY_ADDRESS_FORWARDING: true
+      PROXY_ADDRESS_FORWARDING: "TRUE"
       KEYCLOAK_IMPORT: /tmp/realm-export.json
     secrets:
       - db_username
