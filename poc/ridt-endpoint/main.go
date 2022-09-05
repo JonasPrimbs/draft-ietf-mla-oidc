@@ -20,11 +20,6 @@ func main() {
 	log.Printf("Starting Server...")
 	log.Printf("Loading configuration...")
 
-	// config, err := ridt.LoadConfiguration()
-	// if err != nil {
-
-	// }
-
 	router := ridt.NewRouter()
 
 	port := os.Getenv("PORT")
