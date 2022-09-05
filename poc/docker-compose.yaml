@@ -55,7 +55,7 @@ services:
       - ./keycloak/realm-export.json:/tmp/realm-export.json
   ridt:
     build:
-      context: ./ridt/
+      context: ./ridt-endpoint/
       dockerfile: Dockerfile
     depends_on:
       - proxy
@@ -75,7 +75,7 @@ services:
     env_file:
       - ./ridt.env
     secrets:
-      - key_file
+      - private_key
 
 volumes:
   userdb:
