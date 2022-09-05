@@ -5,31 +5,89 @@ services:
     image: traefik:v2.8
     ports:
       - 8080:80
+    command:
+      - "--accesslog=true"
+      - "--entrypoints.web.address=:80"
+      - "--providers.docker=true"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.exposedbydefault=false"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  db:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_USER_FILE: /run/secrets/db_username
+      POSTGRES_DB: keycloak
+    secrets:
+      - db_username
+      - db_password
+    volumes:
+      - userdb:/var/lib/postgresql/data
   op:
-    image: quay.io/keycloak/keycloak:19.0.1
+    image: quay.io/keycloak/keycloak:18.0
     depends_on:
       - proxy
+      - db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.op.entrypoints=web"
+      - "traefik.http.routers.op.rule=Host(`localhost:8080`)"
+    environment:
+      KEYCLOAK_USER_FILE: /run/secrets/op_username
+      KEYCLOAK_PASSWORD_FILE: /run/secrets/op_password
+      DB_VENDOR: postgres
+      DB_ADDR: db
+      DB_PORT: 5432
+      DB_DATABASE: keycloak
+      DB_USER_FILE: /run/secrets/db_username
+      DB_PASSWORD_FILE: /run/secrets/db_password
+      PROXY_ADDRESS_FORWARDING: true
+      KEYCLOAK_IMPORT: /tmp/realm-export.json
     secrets:
-      - key_file
+      - db_username
+      - db_password
+      - op_username
+      - op_password
     env_file:
       - ridt.env
     volumes:
-      - user-database
+      - ./keycloak/realm-export.json:/tmp/realm-export.json
   ridt:
     build:
       context: ./ridt/
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     depends_on:
       - proxy
       - op
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.op.entrypoints=web"
+      - "traefik.http.routers.op.rule=Host(`localhost:8080`) && Path(`/realms/test/protocol/openid-connect/userinfo/ridt"
+    environment:
+      - KEY_FILE=/run/secrets/key_file
+      - ALG=RS256
+      - USERINFO=http://op:80/realms/test/protocol/openid-connect/userinfo
+      - ISSUER=http://localhost:8080/realms/test
+      - DEFAULT_TOKEN_PERIOD=3600
+      - MAX_TOKEN_PERIOD=2592000
+      - PORT=8080
+    env_file:
+      - ./ridt.env
     secrets:
       - key_file
-    env_file:
-      - ridt.env
 
 volumes:
-  user-database:
+  userdb:
 
 secrets:
-  key_file:
-    file: ./.secrets/key.pem
+  private_key:
+    file: ./.secrets/private.pem
+  db_username:
+    file: ./.secrets/db_username.txt
+  db_password:
+    file: ./.secrets/db_password.txt
+  op_username:
+    file: ./.secrets/op_username.txt
+  op_password:
+    file: ./.secrets/op_password.txt

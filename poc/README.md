@@ -48,11 +48,11 @@ This can be done by defining the variables in the Docker container or by placing
 
 #### Key File
 
-Absolute or relative file path to the OpenID Provider's private key file.
+Absolute or relative file path to the OpenID Provider's private key file in PEM format.
 
 Example:
 ```bash
-KEY_FILE="/path/to/private_key"
+KEY_FILE="/path/to/private_key.pem"
 ```
 
 
@@ -84,6 +84,8 @@ Allowed values are:
 - `ES384` for ECDSA using P-384 and SHA-384
 - `ES512` for ECDSA using P-521 and SHA-512
 
+Default Value: `ES256`.
+
 Example:
 ```bash
 ALG="ES256"
@@ -102,9 +104,9 @@ Example 1:
 USERINFO="https://openid-provider.sample.org/userinfo"
 ```
 
-Example 2:
+Example 2 (Keycloak):
 ```bash
-USERINFO="http://localhost:8080/userinfo"
+USERINFO="http://localhost:8080/realms/test/protocol/openid-connect/userinfo"
 ```
 
 
@@ -115,21 +117,51 @@ The Remote ID Token's Issuer.
 This is the value of the `iss` claim of the issued Remote ID Token.
 Typically, this is the public URI of the OpenID Provider where `.well-known/openid-configuration` is added to request the OpenID configuration.
 
-Example:
+Example 1:
 ```bash
 ISSUER="https://accounts.sample.org/"
+```
+
+Example 2:
+```bash
+ISSUER="http://localhost:8080/realms/test"
 ```
 
 
 #### Token Validity Period
 
-The Remote ID Token's validity period in seconds.
+The Remote ID Token's default validity period in seconds.
 
 Default Value: `3600` (1 hour).
 
 Example:
 ```bash
-TOKEN_PERIOD=3600
+DEFAULT_TOKEN_PERIOD=3600
+```
+
+
+#### Maximum Token Validity Period
+
+The Remote ID Token's maximum validity period in seconds.
+If the requested token period is longer than this value, this value is used.
+
+Default Value: `2592000` (30 days).
+
+Example:
+```bash
+MAX_TOKEN_PERIOD=2592000
+```
+
+
+#### Port
+
+The Port where the endpoint is running on.
+
+Default Value: `8080`.
+
+Example:
+```bash
+PORT=8080
 ```
 
 

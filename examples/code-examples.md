@@ -35,15 +35,33 @@ async function generateEs256KeyPair() {
     );
 }
 
+async function generateRsa256KeyPair() {
+    return await window.crypto.subtle.generateKey(
+        {
+            name: "RSASSA-PKCS1-v1_5",
+            modulusLength: 2048,
+            publicExponent: new Uint8Array([1, 0, 1]),
+            hash: {
+                name: "SHA-256"
+            }
+        },
+        true,
+        [
+            "sign",
+            "verify",
+        ]
+    );
+}
+
 async function exportPublicKeyJwk(keyPair) {
-    return await web.crypto.subtle.exportKey(
+    return await window.crypto.subtle.exportKey(
         "jwk",
         keyPair.publicKey,
     );
 }
 
 async function exportPrivateKeyJwk(keyPair) {
-    return await web.crypto.subtle.exportKey(
+    return await window.crypto.subtle.exportKey(
         "jwk",
         keyPair.privateKey,
     );
@@ -59,7 +77,7 @@ const privateKeyJwk = await exportPrivateKeyJwk(sampleKeyPair);
 Convert Private Key to PEM:
 
 ```js
-async function privateJwkToPem(privateKey) {
+async function privateJwkToPem(keyPair) {
     const privateKeyPkcs8 = await window.crypto.subtle.exportKey(
         "pkcs8",
         keyPair.privateKey
@@ -80,7 +98,7 @@ const privateKeyPem = privateJwkToPem(privateKeyJwk);
 Convert Public Key to PEM:
 
 ```js
-async function publicJwkToPem(publicKey) {
+async function publicJwkToPem(keyPair) {
     const publicKeySpki = await window.crypto.subtle.exportKey(
         "spki",
         keyPair.publicKey
