@@ -48,4 +48,10 @@ var routes = Routes{
 		"/",
 		GenRidt,
 	},
+	Route{
+		"RidtOptions",
+		strings.ToUpper("Options"),
+		"/",
+		RidtOptions,
+	},
 }

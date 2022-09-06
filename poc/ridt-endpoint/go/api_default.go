@@ -163,7 +163,7 @@ func LogAndSendError(w http.ResponseWriter, statusCode int, status string, descr
 	})
 }
 
-func RequestUserinfo(bearerToken string, uri string) (map[string]interface{}, error, bool) {
+func RequestUserinfo(bearerToken string, uri string, issuer string) (map[string]interface{}, error, bool) {
 	// Create new http client
 	client := &http.Client{}
 
@@ -173,6 +173,10 @@ func RequestUserinfo(bearerToken string, uri string) (map[string]interface{}, er
 		return nil, errors.New("failed to create userinfo request to '" + uri + "': " + err.Error()), false
 	}
 	req.Header.Set("Authorization", "Bearer "+bearerToken)
+	// Set Host header
+	issuerParts := strings.Split(issuer, "/")
+	hostname := issuerParts[2]
+	req.Host = hostname
 
 	// Send http request and validate response
 	res, err := client.Do(req)
@@ -475,73 +479,6 @@ func GenerateRidt(privateKey interface{}, algorithm jwt.SigningMethod, tokenClai
 	requestedClaims["nbf"] = now
 	requestedClaims["exp"] = expiresAt
 
-	// // Get provided public key
-	// popParts := strings.Split(popString, ".")
-	// popHeaderBase64url := popParts[0]
-	// popHeaderBytes, err := base64.RawURLEncoding.DecodeString(popHeaderBase64url)
-	// if err != nil {
-	// 	// Log error
-	// 	log.Print("Failed to decode PoP header: " + err.Error())
-
-	// 	// Encode error response
-	// 	internalServerError := ErrorStatus{
-	// 		Code:        500,
-	// 		Status:      "Internal Server Error",
-	// 		Description: "Unknown Internal Server Error.",
-	// 	}
-
-	// 	// Write error response
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	// 	json.NewEncoder(w).Encode(internalServerError)
-	// 	return
-	// }
-	// var popHeader map[string]interface{}
-	// json.Unmarshal(popHeaderBytes, &popHeader)
-
-	// // Parse algorithm
-	// popAlgorithm, err := getAlgorithmFromJson(popHeader, "alg")
-	// if err != nil {
-	// 	errors.New("failed to parse signing algorithm: " + err.Error())
-	// }
-
-	// popJwkClaim, ok := popHeader["jwk"]
-	// if !ok {
-	// 	// Log error
-	// 	log.Print("Public Key not found")
-
-	// 	// Encode error response
-	// 	internalServerError := ErrorStatus{
-	// 		Code:        500,
-	// 		Status:      "Internal Server Error",
-	// 		Description: "Unknown Internal Server Error.",
-	// 	}
-
-	// 	// Write error response
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	// 	json.NewEncoder(w).Encode(internalServerError)
-	// 	return
-	// }
-	// popPublicKey, err := PublicJwkFromJson(popJwkClaim.(map[string]interface{}), popAlgorithm)
-	// if err != nil {
-	// 	// Log error
-	// 	log.Print("Public Key not found")
-
-	// 	// Encode error response
-	// 	internalServerError := ErrorStatus{
-	// 		Code:        500,
-	// 		Status:      "Internal Server Error",
-	// 		Description: "Unknown Internal Server Error.",
-	// 	}
-
-	// 	// Write error response
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	// 	json.NewEncoder(w).Encode(internalServerError)
-	// 	return
-	// }
-
 	// Add confirmation header
 	confirmation := make(map[string]interface{})
 	confirmation["jwk"] = publicKeyJwk
@@ -556,11 +493,17 @@ func GenerateRidt(privateKey interface{}, algorithm jwt.SigningMethod, tokenClai
 	}
 
 	return ridtString, claimNames, expiresAt, nil
-	// claimKeys := reflect.ValueOf(requestedClaims).MapKeys()
-
 }
 
 func GenRidt(w http.ResponseWriter, r *http.Request) {
+	origin := r.Header.Get("Origin")
+	log.Print("origin: " + origin)
+	if origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	}
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+
 	// Load configuration
 	appConfig, err := LoadAppConfigurationFromEnv()
 	if err != nil {
@@ -581,7 +524,7 @@ func GenRidt(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get identity claims from userinfo endpoint
-	userinfoClaims, err, authFailed := RequestUserinfo(bearerToken, appConfig.UserinfoEndpoint)
+	userinfoClaims, err, authFailed := RequestUserinfo(bearerToken, appConfig.UserinfoEndpoint, appConfig.Issuer)
 	if err != nil {
 		if authFailed {
 			LogAndSendError(w, http.StatusUnauthorized, "unauthorized", "invalid bearer token", err.Error())
@@ -612,13 +555,6 @@ func GenRidt(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// // Sign remote id token
-	// ridtString, err := ridt.SignedString(privateKey)
-	// if err != nil {
-	// 	LogAndSendError(w, http.StatusInternalServerError, "internal server error", "unknown internal server error", "failed to sign remote id token: "+err.Error())
-	// 	return
-	// }
-
 	// Encode response
 	expiresIn := expiresAt - time.Now().Unix()
 	response := IatResponse{
@@ -633,4 +569,15 @@ func GenRidt(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("Pragma", "no-cache")
 	json.NewEncoder(w).Encode(response)
+}
+
+func RidtOptions(w http.ResponseWriter, r *http.Request) {
+	origin := r.Header.Get("Origin")
+	log.Print("origin: " + origin)
+	if origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	}
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+	w.WriteHeader(http.StatusNoContent)
 }

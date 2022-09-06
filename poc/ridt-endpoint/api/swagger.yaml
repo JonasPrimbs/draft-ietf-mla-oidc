@@ -99,6 +99,35 @@ paths:
         - openid
         - profile
         - email
+    options:
+      summary: Options for RIDT
+      description: Return Options for the Remote ID Token Endpoint to avoid CORS errors.
+      operationId: ridtOptions
+      responses:
+        "204":
+          description: |
+            **No Content**
+          headers:
+            Allow:
+              schema:
+                type: array
+                items:
+                  type: string
+              example: ["POST", "OPTIONS"]
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              example: "*"
+            Access-Control-Request-Method:
+              schema:
+                type: string
+              example: "POST"
+            Access-Control-Request-Headers:
+              schema:
+                type: array
+                items:
+                  type: string
+              example: ["Authorization", "Content-Type"]
 components:
   schemas:
     ErrorStatus:
