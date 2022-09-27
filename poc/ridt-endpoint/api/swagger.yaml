@@ -184,9 +184,9 @@ components:
         claims:
           type: string
           description: Space delimited claims provided in the Remote ID Token.
-          example: name email email_verified
+          example: sub name email email_verified
       example:
-        claims: name email email_verified
+        claims: sub name email email_verified
         remote_id_token: eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCtEUE9QIiwia2lkIjoxfQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmV4YW1wbGUub3JnLyIsInN1YiI6ImpvaG4uc21pdGhAYWNjb3VudHMuZXhhbXBsZS5vcmciLCJpYXQiOjE2NTkzNTUyMDUsIm5iZiI6MTY1OTM1NTIwNSwiZXhwIjoxNjU5MzU4ODA1LCJub25jZSI6IlZqZlU0Nlo1eWtJaG43akp6cVpvV0srcGFxNjNFS3VIIiwiY25mIjp7Imp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6ImNYUThiZGVOZWVTd2ZMa0h6TWZBVUZySGxMWFpXdkpybW9NMnNDUEdVbmciLCJ5IjoiN0Rwd21Pb0hJbmQwUWNSRVJUS1pBQ2k5YndzYTVnR0tER3hGeG00OEdSQSJ9fSwibmFtZSI6IkpvaG4gU21pdGgiLCJlbWFpbCI6ImpvaG4uc21pdGhAbWFpbC5zYW1wbGUub3JnIiwiZW1haWxfdmVyaWZpZWQiOnRydWV9.TEIehA9Xzmo72QoWMTwlkHA2FzypvGq8mAnGyJLD7H3TAYodrMzJnqyTaU7N36Qij2w5-8IpoPIzahGoKC6J_w
         expires_in: 3600
     RemoteIdToken:
@@ -195,7 +195,6 @@ components:
         **Remote ID Token** as `jwt+dpop` which MUST
           - contain a JWK Key ID of the OpenID Provider's key pair which is used for signing this token (`"kid": <key-id>`) in the JWT header
           - be issued by the OpenID Provider (`"iss": "<op-id>"`)
-          - have the requested user's ID as subject (`"sub": "<user-id>"`)
           - have an issued at date (`"iat": <issuance-time>`)
           - have an expiration date (`"exp": <expiration-time>`)
           - be valid for at most 24 hours (`"exp"` minus `"nbf"` or `"iss"` is less or equal `86400`)

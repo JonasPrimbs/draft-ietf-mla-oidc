@@ -464,11 +464,11 @@ func GenerateRidt(privateKey interface{}, algorithm jwt.SigningMethod, tokenClai
 		claimNames[i] = identityClaimNames[i].String()
 	}
 
-	subject, err := StringFromJson(userinfoClaims, "sub")
+	_, err := StringFromJson(userinfoClaims, "sub")
 	if err != nil {
 		return "", nil, 0, errors.New("subject not found")
 	}
-	requestedClaims["sub"] = subject
+	// requestedClaims["sub"] = subject
 	requestedClaims["iss"] = config.Issuer
 	requestedClaims["nonce"] = nonce
 
