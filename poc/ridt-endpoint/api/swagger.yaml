@@ -313,6 +313,197 @@ components:
       enum:
         - "EC"
         - "RSA"
+    Sha256Hash:
+      type: string
+      format: byte
+      maxLength: 64
+      minLength: 64
+    Sha386Hash:
+      type: string
+      format: byte
+      maxLength: 96
+      minLength: 96
+    Sha512Hash:
+      type: string
+      format: byte
+      maxLength: 128
+      minLength: 128
+    ShaHash:
+      oneOf:
+        - $ref: '#/components/schemas/Sha256Hash'
+        - $ref: '#/components/schemas/Sha386Hash'
+        - $ref: '#/components/schemas/Sha512Hash'
+    IdAssertionTokenHeader:
+      type: object
+      required:
+        - "typ"
+        - "alg"
+        - "kid"
+      properties:
+        typ:
+          enum:
+            - 'jwt/iat'
+          default: 'jwt/iat'
+          description: 'The type of the JSON Web Token'
+        alg:
+          $ref: '#/components/schemas/SigningAlgorithm'
+        kid:
+          type: string
+    IdAssertionTokenPayload:
+      type: object
+      required:
+        - "iat"
+        - "exp"
+        - "iss"
+        - "sub"
+        - "cnf"
+        - "nonce"
+      properties:
+        iat:
+          $ref: '#/components/schemas/UnixTimestamp'
+          description: '"Issued AT": the unix timestamp when the token was issued'
+        nbf:
+          $ref: '#/components/schemas/UnixTimestamp'
+          description: '"Not BeFore": the unix timestamp when the token starts to be valid'
+        exp:
+          $ref: '#/components/schemas/UnixTimestamp'
+          description: '"EXPiration": the unix timestamp when the token expires'
+        iss:
+          type: string
+          format: uri
+          description: '"ISSuer": the uniform resource identifier of the OpenID Provider that issued the token'
+        aud:
+          type: string
+          description: '"AUDience": the identifier of the audience that this token is issued for'
+        sub:
+          type: string
+          description: '"SUBject": the identifier of the End User that this token claims to represent'
+        cnf:
+          type: object
+          description: '"CoNFirmation": an object which contains a key representation used to confirm the identity of the End User'
+          minProperties: 1
+          properties:
+            jwk:
+              $ref: '#/components/schemas/JwkPublicKey'
+              description: Public key in JSON Web Key (JWK) format
+            x5t#s256:
+              $ref: '#/components/schemas/Sha256Hash'
+              description: SHA-256 hash of public key in X.509 format
+            x5t#s386:
+              $ref: '#/components/schemas/Sha386Hash'
+              description: SHA-386 hash of public key in X.509 format
+            x5t#s512:
+              $ref: '#/components/schemas/Sha512Hash'
+              description: SHA-512 hash of public key in X.509 format
+        nonce:
+          type: string
+          description: A random nonce
+        name:
+          type: string
+          description: End-User's full name in displayable form including all name parts, possibly including titles and suffixes, ordered according to the End-User's locale and preferences.
+        given_name:
+          type: string
+          description: Given name(s) or first name(s) of the End-User. Note that in some cultures, people can have multiple given names; all can be present, with the names being separated by space characters.
+        family_name:
+          type: string
+          description: Surname(s) or last name(s) of the End-User. Note that in some cultures, people can have multiple family names or no family name; all can be present, with the names being separated by space characters.
+        middle_name:
+          type: string
+          description: Middle name(s) of the End-User. Note that in some cultures, people can have multiple middle names; all can be present, with the names being separated by space characters. Also note that in some cultures, middle names are not used.
+        nickname:
+          type: string
+          description: Casual name of the End-User that may or may not be the same as the given_name. For instance, a nickname value of Mike might be returned alongside a given_name value of Michael.
+        preferred_username:
+          type: string
+          description: Shorthand name by which the End-User wishes to be referred to at the RP, such as janedoe or j.doe. This value MAY be any valid JSON string including special characters such as @, /, or whitespace. The RP MUST NOT rely upon this value being unique, as discussed in Section 5.7.
+        profile:
+          type: string
+          format: uri
+          description: URL of the End-User's profile page. The contents of this Web page SHOULD be about the End-User.
+        picture:
+          type: string
+          format: uri
+          description: URL of the End-User's profile picture. This URL MUST refer to an image file (for example, a PNG, JPEG, or GIF image file), rather than to a Web page containing an image. Note that this URL SHOULD specifically reference a profile photo of the End-User suitable for displaying when describing the End-User, rather than an arbitrary photo taken by the End-User.
+        website:
+          type: string
+          format: uri
+          description: URL of the End-User's Web page or blog. This Web page SHOULD contain information published by the End-User or an organization that the End-User is affiliated with.
+        email:
+          type: string
+          format: email
+          description: End-User's preferred e-mail address. Its value MUST conform to the RFC 5322 [RFC5322] addr-spec syntax. The RP MUST NOT rely upon this value being unique, as discussed in Section 5.7.
+        email_verified:
+          type: boolean
+          description: True if the End-User's e-mail address has been verified; otherwise false. When this Claim Value is true, this means that the OP took affirmative steps to ensure that this e-mail address was controlled by the End-User at the time the verification was performed. The means by which an e-mail address is verified is context-specific, and dependent upon the trust framework or contractual agreements within which the parties are operating.
+        gender:
+          type: string
+          description: End-User's gender. Values defined by this specification are female and male. Other values MAY be used when neither of the defined values are applicable.
+        birthdate:
+          type: string
+          format: date
+          description: End-User's birthday, represented as an ISO 8601:2004 [ISO8601‑2004] YYYY-MM-DD format. The year MAY be 0000, indicating that it is omitted. To represent only the year, YYYY format is allowed. Note that depending on the underlying platform's date related function, providing just year can result in varying month and day, so the implementers need to take this factor into account to correctly process the dates.
+        zoneinfo:
+          type: string
+          description: String from zoneinfo [zoneinfo] time zone database representing the End-User's time zone. For example, Europe/Paris or America/Los_Angeles.
+        locale:
+          type: string
+          description: End-User's locale, represented as a BCP47 [RFC5646] language tag. This is typically an ISO 639-1 Alpha-2 [ISO639‑1] language code in lowercase and an ISO 3166-1 Alpha-2 [ISO3166‑1] country code in uppercase, separated by a dash. For example, en-US or fr-CA. As a compatibility note, some implementations have used an underscore as the separator rather than a dash, for example, en_US; Relying Parties MAY choose to accept this locale syntax as well.
+        phone_number:
+          type: string
+          description: End-User's preferred telephone number. E.164 [E.164] is RECOMMENDED as the format of this Claim, for example, +1 (425) 555-1212 or +56 (2) 687 2400. If the phone number contains an extension, it is RECOMMENDED that the extension be represented using the RFC 3966 [RFC3966] extension syntax, for example, +1 (604) 555-1234;ext=5678.
+        phone_number_verified:
+          type: boolean
+          description: True if the End-User's phone number has been verified; otherwise false. When this Claim Value is true, this means that the OP took affirmative steps to ensure that this phone number was controlled by the End-User at the time the verification was performed. The means by which a phone number is verified is context-specific, and dependent upon the trust framework or contractual agreements within which the parties are operating. When true, the phone_number Claim MUST be in E.164 format and any extensions MUST be represented in RFC 3966 format.
+        address:
+          $ref: '#/components/schemas/Address'
+          description: End-User's preferred postal address. The value of the address member is a JSON [RFC4627] structure containing some or all of the members defined in Section 5.1.1.
+        updated_at:
+          $ref: '#/components/schemas/UnixTimestamp'
+          description: Time the End-User's information was last updated. Its value is a JSON number representing the number of seconds from 1970-01-01T0:0:0Z as measured in UTC until the date/time.
+    IdAssertionToken:
+      type: object
+      required:
+        - header
+        - payload
+        - signature
+      properties:
+        header:
+          $ref: '#/components/schemas/IdAssertionTokenHeader'
+        payload:
+          $ref: '#/components/schemas/IdAssertionTokenPayload'
+        signature:
+          type: string
+    IatRequestToken:
+      type: object
+      properties:
+        header:
+          $ref: IatRequestTokenHeader
+    UnixTimestamp:
+      type: number
+      format: int64
+      minimum: 0
+    Address:
+      type: object
+      properties:
+        formatted:
+          type: string
+          description: Full mailing address, formatted for display or use on a mailing label. This field MAY contain multiple lines, separated by newlines. Newlines can be represented either as a carriage return/line feed pair ("\r\n") or as a single line feed character ("\n").
+        street_address:
+          type: string
+          description: Full street address component, which MAY include house number, street name, Post Office Box, and multi-line extended street address information. This field MAY contain multiple lines, separated by newlines. Newlines can be represented either as a carriage return/line feed pair ("\r\n") or as a single line feed character ("\n").
+        locality:
+          type: string
+          description: City or locality component.
+        region:
+          type: string
+          description: State, province, prefecture, or region component.
+        postal_code:
+          type: string
+          description: Zip code or postal code component.
+        country:
+          type: string
+          description: Country name component
+
   securitySchemes:
     iat_auth:
       type: oauth2
